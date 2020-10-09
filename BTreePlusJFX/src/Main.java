@@ -22,7 +22,7 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) {
 
-        bTree.initialize(3);
+        bTree.initialize(5);
         final int windowHeight = 480;
         final int windowWidth = 720;
 
