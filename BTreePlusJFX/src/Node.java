@@ -1,51 +1,68 @@
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 /**
  * The Class Node.
  */
 public class Node implements Serializable {
 
+    public int numKeys;
     /**
      * The list of key values in the node.
      */
-    private List<Double> keys;
+    public Double[] keys;
 
     /**
      * The children of this node. Set only for internal Nodes.
      */
-    private List<Node> children;
+    public Node[] children;
 
-    /**
-     * The previous element in the linked list. Set only for left Nodes.
-     * */
-    private Node prev;
 
     /**
      * The next element in the linked list. Set only for left Nodes.
      */
-    private Node next;
+    public Node next;
 
     /**
      * The parent of this node. NULL for root
      */
-    private Node parent;
+    public Node parent;
+
+
+    public boolean isLeaf;
+
 
     /**
      * Instantiates a new node.
      */
     public Node() {
-        this.keys = new ArrayList<Double>();
-        this.children = new ArrayList<>();
-        this.prev = null;
+        this.keys = new Double[BPlusTree.order + 1];
+        this.children = new Node[BPlusTree.order + 2];
+        this.numKeys = 0;
+        this.isLeaf = true;
+        this.parent = null;
         this.next = null;
     }
 
 
     public int getSize() {
-        return keys.size();
+        return keys.length;
+    }
+
+    public boolean isLeaf() {
+        return isLeaf;
+    }
+
+    public void setLeaf(boolean value) {
+        this.isLeaf = value;
+    }
+
+
+    public int getNumKeys() {
+        return numKeys;
+    }
+
+    public void setNumKeys(int numKeys) {
+        this.numKeys = numKeys;
     }
 
     /**
@@ -53,17 +70,17 @@ public class Node implements Serializable {
      * @return the key
      */
     public Double getKey(int index) {
-        return keys.get(index);
+        return keys[index];
     }
 
     /**
      * @return true, if node is a leaf
      */
     public boolean isLastInternalNode() {
-        if (this.keys.size() == 0)
+        if (this.keys.length == 0)
             return false;
         for (Node node : this.children)
-            if (node.keys.size() != 0)
+            if (node!= null)
                 return false;
         return true;
     }
@@ -72,7 +89,7 @@ public class Node implements Serializable {
      * @return true, if keys is empty
      */
     public boolean isNull() {
-        return keys.isEmpty();
+        return true;
     }
 
 
@@ -81,7 +98,7 @@ public class Node implements Serializable {
      *
      * @return the keys
      */
-    public List<Double> getKeys() {
+    public Double[] getKeys() {
         return keys;
     }
 
@@ -90,11 +107,11 @@ public class Node implements Serializable {
      *
      * @param keys the new keys
      */
-    public void setKeys(List<Double> keys) {
-        Iterator<Double> iter = keys.iterator();
+    public void setKeys(Double[] keys) {
+     /*   Iterator<Double> iter = keys.iterator();
         while (iter.hasNext()) {
             this.keys.add(iter.next());
-        }
+        }*/
     }
 
     /**
@@ -102,37 +119,19 @@ public class Node implements Serializable {
      *
      * @return the children
      */
-    public List<Node> getChildren() {
+    public Node[] getChildren() {
         return children;
     }
 
     /**
-     * Sets the children.
+     * Gets the children.
      *
-     * @param children the new children
+     * @return the children
      */
-    public void setChildren(List<Node> children) {
-        this.children = children;
+    public int getSizeChildren() {
+        return children.length;
     }
 
-    /**
-     * Gets the prev.
-     *
-     *
-     * @return the prev
-     */
-    public Node getPrev() {
-        return prev;
-    }
-
-    /**
-     * Sets the prev.
-     *
-     * @param prev the new prev
-     */
-    public void setPrev(Node prev) {
-        this.prev = prev;
-    }
 
     /**
      * Gets the next.
@@ -173,6 +172,14 @@ public class Node implements Serializable {
     @Override
     public String toString() {
         return "Keys =" + keys.toString();
+    }
+
+    public boolean isOverflowed() {
+        return keys.length == BPlusTree.order;
+    }
+
+    public boolean isUnderflowed() {
+        return keys.length < BPlusTree.minKeys;
     }
 
 }

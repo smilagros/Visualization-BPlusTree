@@ -1,71 +1,64 @@
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
-
-
-/**
- * The BPlusTree Class.
- */
 
 public class BPlusTree implements Serializable {
 
     /**
      * The degree order.
      */
-    private int order;
+    public static int order;
 
     /**
-     * The root of the B Plus Tree.
+     * The root of the B Plus node.
      */
     private Node root;
+    /**
+     * The root of the B Plus node.
+     */
 
+    public int maxKeys;
+    /**
+     * The root of the B Plus node.
+     */
+    public static int minKeys = 1;
+    /**
+     * The root of the B Plus node.
+     */
+    public int splitIndex;
+    /**
+     * The root of the B Plus node.
+     */
+    public int maxDegree;
+
+
+    private LinkedList<BPlusTree> stepsTree = new LinkedList<BPlusTree>();
 
     /**
-     * Instantiates a new b plus tree.
+     * Instantiates a new b plus node.
      */
     public BPlusTree() {
 
     }
 
     /**
-     * Initializes the B Plus Tree. Sets the degree of the BPlus Tree as order
+     * Initializes the B Plus Tree. Sets the degree of the BPlus Tree as m
      *
-     * @param order the degree of the B Plus Tree
+     * @param order
+     *            the degree of the B Plus Tree
      */
     public void initialize(int order) {
-        // At initialization, order of the tree is set to order. Root is set to null
+        // At initialization, order of the tree is set to m. Root is set to null
+        // At initialization, order of the node is set to order. Root is set to null
         this.order = order;
         this.root = null;
-
-        // System.out.println("B+ Tree Initialized. Degree is " + order);
-    }
-
-    /////////////////////////////////////////////////////////////////////////////7
-    private LinkedList<BPlusTree> stepTrees = new LinkedList<BPlusTree>();
-    public final Node nullBTNode = new Node();
-
-    /**
-     * @param node , the node
-     * @return the height of the node position
-     */
-    public int getHeight(Node node) {
-        int height = 1;
-        Node curr = node;
-        curr = curr.getNext();
-        while (null != curr) {
-            printNode(curr);
-            curr = curr.getNext();
-            height++;
-        }
-        return height;
-
+        this.maxDegree = order;
+        this.maxKeys = order - 1;
+        this.minKeys = (int) Math.ceil((order + 1) / 2) - 1;
+        this.splitIndex = (int) Math.ceil((order) / 2);
 
     }
-
     /**
-     * @return true, if tree is empty
+     * @return true, if node is empty
      */
     public boolean isEmpty() {
         return this.root == null;
@@ -75,7 +68,6 @@ public class BPlusTree implements Serializable {
     public void setRoot(Node root) {
         this.root = root;
     }
-
 
     /**
      * @return root node
@@ -89,529 +81,506 @@ public class BPlusTree implements Serializable {
     }
 
 
-    public LinkedList<BPlusTree> getStepTrees() {
-        return stepTrees;
+    public LinkedList<BPlusTree> getStepsTree() {
+        return stepsTree;
     }
 
-    public void setStepTrees(LinkedList<BPlusTree> stepTrees) {
-        this.stepTrees = stepTrees;
+    public void setStepsTree(LinkedList<BPlusTree> stepsTree) {
+        this.stepsTree = stepsTree;
     }
-
-////////////////////////////////////////////////////////////////////////////////77
-
 
     /**
-     * Insert a key to the B Plus Tree
-     *
-     * @param key the key to be inserted
+     * @param node , the node
+     * @return the height of the node position
      */
-    public void insert(double key) {
+    public int getHeight(Node node) {
+        int height = 1;
+        Node currentNode = node;
+        currentNode = currentNode.getNext();
+        while (null != currentNode) {
+            //printNode(currentNode);
+            currentNode = currentNode.getNext();
+            height++;
+        }
+        return height;
 
-        // Case 1: Inserting to an BPlus Tree Empty
+
+    }
+
+    /*Insert Element*/
+    public void insertElement(double value) {
         if (this.root == null) {
-            System.out.println("Case 1");
-            Node newNode = new Node();
-            newNode.getKeys().add(key);
-            this.root = newNode;
-            // St parent to null
-            this.root.setParent(null);
-            this.stepTrees.add(CloneUtils.clone(this));
+            this.root = new Node();
+            this.root.keys[0] = value;
+            this.root.numKeys++;
+            this.stepsTree.add(CloneUtils.clone(this));
+
+        } else {
+            this.insert(this.root, value);
+            this.stepsTree.clear();
+             this.stepsTree.add(CloneUtils.clone(this));
+        }
+    }
+
+
+    public void insert(Node node, double value) {
+
+        if (node.isLeaf) {
+            this.insertInto(node, value);
+            this.insertValidate(node);
+        } else {
+            int findIndex = 0;
+            while (findIndex < node.numKeys && node.keys[findIndex] < value) {
+                findIndex++;
+            }
+            this.insert(node.children[findIndex], value);
+        }
+    }
+
+
+    public void insertInto(Node node, double value) {
+        int index = node.numKeys;
+        while (index > 0 && node.keys[index - 1] > value) {
+            node.keys[index] = node.keys[index - 1];
+            index--;
+        }
+        node.keys[index] = value;
+        node.numKeys++;
+
+        //this.stepsTree.add(CloneUtils.clone(this));
+
+    }
+
+
+    public void insertValidate(Node node) {
+        if (node.numKeys <= this.maxKeys) {
             return;
-        }
-
-        // Case 2: Only one node that is not full
-        else if (this.root.getChildren().isEmpty() && this.root.getKeys().size() < (this.order - 1)) {
-            System.out.println("Case 2");
-            insertLeafNode(key, this.root);
-            this.stepTrees.add(CloneUtils.clone(this));
-
-        }
-
-        // Case 3: Normal insert
-        else {
-            System.out.println("Case 3");
-            Node curr = this.root;
-            // Since we insert the element only at the leaf node, we
-            // traverse to the last level
-            // Ya que insertamos el elemento solo en el nodo hoja, atravesamos al último nivel
-            System.out.println("curr.getChildren1 ->" + curr.getChildren());
-
-            int i = 1;
-            while (!curr.getChildren().isEmpty()) {//while no  sea hoja
-                System.out.println("ingresando a while " + i);
-                System.out.println("key->" + key);
-                curr = curr.getChildren().get(binarySearchInternalNode(key, curr.getKeys()));//ubicar el nododonde insertar
-                System.out.println("while curr ->" + curr.getChildren());
-                i++;
-            }
-
-
-            insertLeafNode(key, curr);//insertar dentro del nodo hoja
-
-            if (curr.getKeys().size() == this.order) {
-                System.out.println("If the leaf node becomes full, we split it .Tree Order->" + order);
-                splitLeafNode(curr, this.order);
-            }
-
-
-        }
-        this.stepTrees.add(CloneUtils.clone(this));
-
-    }
-
-    /**
-     * Insert the key to the leaf node.
-     *
-     * @param key  the key to be inserted
-     * @param node the node where the key has to be inserted
-     */
-    private void insertLeafNode(double key, Node node) {
-        // Se ejecuta una búsqueda binaria para encontrar el lugar correcto donde se insertará el nodo
-        System.out.println("insertLeafNode->" + key + " - Node->" + node.getKeys());
-        int indexKey = binarySearchInternalNode(key, node.getKeys());
-        System.out.println("Index position->" + indexKey);
-        if (indexKey != 0 && node.getKeys().get(indexKey - 1) == key) {
-            System.out.println("Key already exists.");
-        } else {
-            // Key doesn't exist. Add key and value
-            node.getKeys().add(indexKey, key);
-            this.stepTrees.add(CloneUtils.clone(this));
-        }
-        System.out.println("insertLeafNode final ->" + node.getKeys());
-
-    }
-
-    /**
-     * Split leaf node.
-     *
-     * @param curr  the over-full leaf node to be split
-     * @param order the degree of the B Plus Tree
-     */
-    private void splitLeafNode(Node curr, int order) {
-
-        System.out.println("Find the newParent index");
-        int halfIndex = order / 2;
-        System.out.println(halfIndex);
-        //Create two new nodes
-        Node newParent = new Node();
-        Node right = new Node();
-
-        System.out.println("Set the right part to have newParent element and the elements right to the newParent element");
-        right.setKeys(curr.getKeys().subList(halfIndex, curr.getKeys().size()));
-        right.setParent(newParent);
-        // While making newParent as the internal node, we add only the key since
-        // internal nodes of bplus tree do not contain values
-        newParent.getKeys().add(curr.getKeys().get(halfIndex));
-        newParent.getChildren().add(right);
-        // Curr holds the left part, so update the split node to contain just
-        // the left part
-        curr.getKeys().subList(halfIndex, curr.getKeys().size()).clear();
-
-        System.out.println("After Split -> keys" + curr.getKeys());
-        boolean firstSplit = true;
-        // propogate the newParent element up the tree and merge with parent of
-        // previously overfull node
-        splitInternalNode(curr.getParent(), curr, order, newParent, firstSplit);
-
-
-    }
-
-    /**
-     * Split internal node.
-     *
-     * @param parentLeft the current Internal Node
-     * @param left       the child of the current Internal Node (Previous internal
-     *                   node)
-     * @param order      the degree of the B Plus Tree
-     * @param newParent  the part split to be inserted to this internal Node
-     * @param firstSplit indicates if the split is happening at the first internal node
-     *                   from the bottom
-     */
-    //        splitInternalNode  (curr.getParent(), curr,     order,    newParent,            firstSplit);
-    private void splitInternalNode(Node parentLeft, Node left, int order, Node newParent, boolean firstSplit) {
-        if (parentLeft == null) {
-            // if we split the root before, then a new root has to be created
-            this.root = newParent;
-            // we find where the child has to be inserted by doing a binary
-            // search on keys
-            int indexLeft = binarySearchInternalNode(left.getKeys().get(0), newParent.getKeys());
-            left.setParent(newParent);
-            newParent.getChildren().add(indexLeft, left);
-            if (firstSplit) {
-                // update the linked list only for first split (for leaf node)
-                if (indexLeft == 0) {
-                    newParent.getChildren().get(0).setNext(newParent.getChildren().get(1));
-                    newParent.getChildren().get(1).setPrev(newParent.getChildren().get(0));
-                } else {
-                    newParent.getChildren().get(indexLeft + 1)
-                            .setPrev(newParent.getChildren().get(indexLeft));
-                    newParent.getChildren().get(indexLeft - 1)
-                            .setNext(newParent.getChildren().get(indexLeft));
-                }
-            }
-            this.stepTrees.add(CloneUtils.clone(this));
-
-        } else {
-            // merge the internal node with the newParent + right of previous split
-            mergeInternalNodes(parentLeft, newParent);
-            if (parentLeft.getKeys().size() == order) {
-                // do a split again if the internal node becomes full
-                int halfIndex = (int) Math.ceil(order / 2.0) - 1;
-                Node parent = new Node();
-                Node right = new Node();
-
-                // since internal nodes follow a split like the b tree, right
-                // part contains elements right of the newParent element, and the
-                // newParent becomes parent of right part
-                right.setKeys(parentLeft.getKeys().subList(halfIndex + 1, parentLeft.getKeys().size()));
-                right.setParent(parent);
-
-                parent.getKeys().add(parentLeft.getKeys().get(halfIndex));
-                parent.getChildren().add(right);
-
-                List<Node> childrenCurr = parentLeft.getChildren();
-                List<Node> childrenOfRight = new ArrayList<>();
-
-                int lastChildLeft = childrenCurr.size() - 1;
-
-                // update the children that have to be sent to the right part
-                // from the split node
-                for (int i = childrenCurr.size() - 1; i >= 0; i--) {
-                    List<Double> currKeysList = childrenCurr.get(i).getKeys();
-                    if (parent.getKeys().get(0) <= currKeysList.get(0)) {
-                        childrenCurr.get(i).setParent(right);
-                        childrenOfRight.add(0, childrenCurr.get(i));
-                        lastChildLeft--;
-                    } else {
-                        break;
-                    }
-                }
-
-                right.setChildren(childrenOfRight);
-
-                // update the overfull node to contain just the left part and
-                // update its children
-                parentLeft.getChildren().subList(lastChildLeft + 1, childrenCurr.size()).clear();
-                parentLeft.getKeys().subList(halfIndex, parentLeft.getKeys().size()).clear();
-
-                // propogate split one level up
-                splitInternalNode(parentLeft.getParent(), parentLeft, order, newParent, false);
-            }
-            this.stepTrees.add(CloneUtils.clone(this));
-
-        }
-
-    }
-
-    /**
-     * Merge internal nodes.
-     *
-     * @param mergeFrom to part from which we have to merge (newParent of the previous
-     *                  split node)
-     * @param mergeInto the internal node to be merged to
-     */
-    private void mergeInternalNodes(Node mergeInto, Node mergeFrom) {
-        Double keyToBeInserted = mergeFrom.getKeys().get(0);
-        Node childToBeInserted = mergeFrom.getChildren().get(0);
-        // Find the index where the key has to be inserted to by doing a binary
-        // search
-        int indexToBeInsertedAt = binarySearchInternalNode(keyToBeInserted, mergeInto.getKeys());
-        int childInsertPos = indexToBeInsertedAt;
-        if (keyToBeInserted <= childToBeInserted.getKeys().get(0)) {
-            childInsertPos = indexToBeInsertedAt + 1;
-        }
-        childToBeInserted.setParent(mergeInto);
-        mergeInto.getChildren().add(childInsertPos, childToBeInserted);
-        mergeInto.getKeys().add(indexToBeInsertedAt, keyToBeInserted);
-
-        // Update Linked List ofleft nodes
-        if (!mergeInto.getChildren().isEmpty() && mergeInto.getChildren().get(0).getChildren().isEmpty()) {
-
-            // If merge is happening at the last element, then only pointer
-            // between new node and previously last element
-            // needs to be updated
-            if (mergeInto.getChildren().size() - 1 != childInsertPos
-                    && mergeInto.getChildren().get(childInsertPos + 1).getPrev() == null) {
-                mergeInto.getChildren().get(childInsertPos + 1).setPrev(mergeInto.getChildren().get(childInsertPos));
-                mergeInto.getChildren().get(childInsertPos).setNext(mergeInto.getChildren().get(childInsertPos + 1));
-            }
-            // If merge is happening at the last element, then only pointer
-            // between new node and previously last element
-            // needs to be updated
-            else if (0 != childInsertPos && mergeInto.getChildren().get(childInsertPos - 1).getNext() == null) {
-                mergeInto.getChildren().get(childInsertPos).setPrev(mergeInto.getChildren().get(childInsertPos - 1));
-                mergeInto.getChildren().get(childInsertPos - 1).setNext(mergeInto.getChildren().get(childInsertPos));
-            }
-            // If merge is happening in between, then the next element and the
-            // previous element's prev and next pointers have to be updated
-            else {
-                mergeInto.getChildren().get(childInsertPos)
-                        .setNext(mergeInto.getChildren().get(childInsertPos - 1).getNext());
-                mergeInto.getChildren().get(childInsertPos).getNext()
-                        .setPrev(mergeInto.getChildren().get(childInsertPos));
-                mergeInto.getChildren().get(childInsertPos - 1).setNext(mergeInto.getChildren().get(childInsertPos));
-                mergeInto.getChildren().get(childInsertPos).setPrev(mergeInto.getChildren().get(childInsertPos - 1));
-            }
-        }
-
-    }
-
-    /**
-     * Helper method - Prints the tree using a level order traversal
-     */
-    public void printTree() {
-        Queue<Node> queue = new LinkedList<Node>();
-        queue.add(this.root);
-        queue.add(null);
-        Node curr = null;
-        int levelNumber = 2;
-        System.out.println("Nivel 1");
-        while (!queue.isEmpty()) {
-            curr = queue.poll();
-            if (curr == null) {
-                queue.add(null);
-                if (queue.peek() == null) {
-                    break;
-                }
-                System.out.println("\n" + "Nivel " + levelNumber++);
-                continue;
-            }
-
-            printNode(curr);
-
-            if (curr.getChildren().isEmpty()) {
-                break;
-            }
-            for (int i = 0; i < curr.getChildren().size(); i++) {
-                queue.add(curr.getChildren().get(i));
-            }
-        }
-
-        curr = curr.getNext();
-        while (null != curr) {
-            printNode(curr);
-            curr = curr.getNext();
-        }
-
-    }
-
-    /**
-     * Helper method Prints a node of the tree.
-     *
-     * @param curr the node to be printed
-     */
-    private void printNode(Node curr) {
-        for (int i = 0; i < curr.getKeys().size(); i++) {
-            System.out.print(curr.getKeys().get(i) + " ");
-        }
-        System.out.print("||");
-    }
-
-    /**
-     * Búsqueda binaria modificada dentro del nodo interno.
-     *
-     * @param key     la llave a buscar
-     * @param keyList la lista de claves a buscar
-     * @return the first index of the list at which the key which is greater
-     * than the input key
-     */
-    public int binarySearchInternalNode(double key, List<Double> keyList) {
-        int start = 0;
-        int end = keyList.size() - 1;
-        int position;
-        int index = -1;
-        //The key is at start
-        if (key < keyList.get(start)) {
-            return 0;
-        }
-        // The key is at end
-        if (key >= keyList.get(end)) {
-            return keyList.size();
-        }
-        while (start <= end) {
-            position = (start + end) / 2;
-            // La siguiente condición asegura que encontremos una ubicación
-            // s.t. la clave es más pequeña que el elemento en ese índice
-            // y es mayor o igual que el elemento en el índice anterior.
-            // Esta ubicación es donde se insertaría la llave
-            if (key < keyList.get(position) && key >= keyList.get(position - 1)) {
-                index = position;
-                break;
-            } // Las siguientes condiciones siguen la búsqueda binaria normal
-            else if (key >= keyList.get(position)) {
-                start = position + 1;
-            } else {
-                end = position - 1;
-            }
-        }
-        return index;
-    }
-
-    /**
-     * Search values for a key
-     *
-     * @param key the key to be searched
-     * @return the list of values for the key
-     */
-    public List<String> search(double key) {
-        List<String> searchValues = null;
-
-        Node curr = this.root;
-        // Traverse to the corresponding leaf node that would 'should'
-        // contain this key
-        while (curr.getChildren().size() != 0) {
-            curr = curr.getChildren().get(binarySearchInternalNode(key, curr.getKeys()));
-        }
-        List<Double> keyList = curr.getKeys();
-        // Do a linear search in this node for the key. Set the parameter
-        // 'searchValues' only if success
-        for (int i = 0; i < keyList.size(); i++) {
-            //if (key == keyList.get(i).getKey()) {
-            //	searchValues = keyList.get(i).getValues();
-            //}
-            if (key < keyList.get(i)) {
-                break;
-            }
-        }
-
-        return searchValues;
-    }
-    // Get the mid point
-    private int getMidpoint() {
-        return (int) Math.ceil((this.order + 1) / 2.0) - 1;
-    }
-
-    private boolean isOverfull() {
-        return this.order == order + 1;
-    }
-    /***************************Nueva Implementacion******************************/
-
-    /**
-     * @param key , use key to find node
-     * @return the node which contains of the key
-     */
-    public Node getNode(Double key) {
-        if (isEmpty()) {
-            return nullBTNode;
-        }
-        int index = 0;
-        Node currentNode = root;
-        while (!currentNode.equals(nullBTNode)) {
-            int i = 0;
-            while (i < currentNode.getSize()) {
-                if (currentNode.getKey(i).equals(key)) {
-                    index = i;
-                    return currentNode;
-                } else if (currentNode.getKey(i).compareTo(key) > 0) {
-                    currentNode = currentNode.getChildren().get(i);
-                    i = 0;
-                } else {
-                    i++;
-                }
-            }
-            if (!currentNode.isNull()) {
-                currentNode = currentNode.getChildren().get(currentNode.getSize());
-            }
-        }
-        return nullBTNode;
-    }
-
-    /**
-     * @param key , the key to be deleted
-     */
-
-    /*
-     * Case 1: If k is in the node x which is a leaf and x.size -1 >= halfNumber
-     * Case 2: If k is in the node x which is a leaf and x.size -1 < halfNumber Case
-     * 3: If k is in the node x and x is an internal node (not a leaf)
-     */
-    public void delete(double key) {
- /*       System.out.println("--------------------------------------\nDelete\n--------------------------------------");
-//		stepMess.add("Cay ban dau");
-        stepTrees.add(CloneUtils.clone(this));
-        // Tim kiem node chua key
-        Node node = getNode(key);
-        Node deleteNode = null;
-        if (node.equals(nullBTNode))
+        } else if (node.parent == null) {
+            this.root = this.split(node);
             return;
-
-        // Neu la root, cay 1 node 1 key -> Xoa luon
-        if (node.equals(root) && node.getSize() == 1 && node.isLastInternalNode()) {
-            root = null;
-            //treeSize--;
-
-            System.out.println("Xoa goc");
-            stepTrees.add(CloneUtils.clone(this));
         } else {
-            boolean flag = true;
-            boolean isReplaced = false;
-            // TODO: case 3
-            if (!node.isLastInternalNode()) {
-                node = replaceNode(node);
-                deleteNode = node;
-                isReplaced = true;
+            Node split = this.split(node);
+            this.insertValidate(split);
+        }
+    }
+
+
+    public Node split(Node node) {
+        Node rightNode = new Node();
+        Node leftNode = new Node();
+        double midleValue = node.keys[this.splitIndex];
+
+        int rightSplit = this.splitIndex;
+        int leftSplit = this.splitIndex;
+
+        if (node.isLeaf) {
+            rightNode.next = node.next;
+            node.next = rightNode;
+        } else {
+            rightSplit = rightSplit + 1;
+            //leftSplit = leftSplit;
+        }
+
+        if (!node.isLeaf) {
+            for (int i = rightSplit; i < node.numKeys + 1; i++) {
+                rightNode.children[i - rightSplit] = node.children[i];
+                rightNode.isLeaf = false;
+                node.children[i].parent = rightNode;
+                node.children[i] = null;
             }
 
-            // Neu xoa lam anh huong den do cao cay
-            if (node.getSize() - 1 < halfNumber) {
-//				System.out.println("Case 2:");
-                // TODO: case 2
-                node = balanceDeletedNode(node);
-                if (isReplaced) {
-                    for (int i = 0; i <= node.getSize(); i++) {
-                        for (int j = 0; i < node.getChild(i).getSize(); j++) {
-                            if (node.getChild(i).getKey(j).equals(key)) {
-                                deleteNode = node.getChild(i);
-                                break;
-                            }
-                        }
-                    }
+        }
+        for (int i = rightSplit; i < node.numKeys; i++) {
+            rightNode.keys[i - rightSplit] = node.keys[i];
+            rightNode.numKeys++;
+        }
+
+        if (!node.isLeaf) {
+            for (int j = 0; j < leftSplit+1 ; j++) {
+                leftNode.children[j] = node.children[j];
+                leftNode.isLeaf = false;
+                node.children[j].parent = leftNode;
+                node.children[j] = null;
+            }
+        }
+
+        for (int i = 0; i < leftSplit; i++) {
+            leftNode.keys[i] = node.keys[i];
+            leftNode.numKeys++;
+        }
+
+        if (node.parent != null) {
+            Node currentParent = node.parent;
+            int index = 0;
+            while (index < currentParent.numKeys + 1 && currentParent.children[index] != node) {
+                index++;
+            }
+
+            for (int i = currentParent.numKeys; i > index; i--) {
+                currentParent.children[i + 1] = currentParent.children[i];
+                currentParent.keys[i] = currentParent.keys[i - 1];
+            }
+            currentParent.numKeys++;
+            currentParent.keys[index] = midleValue;
+            currentParent.children[index + 1] = rightNode;
+            currentParent.children[index] = leftNode;
+            rightNode.parent = currentParent;
+            leftNode.parent = currentParent;
+            //this.stepsTree.add(CloneUtils.clone(this));
+
+            return node.parent;
+
+        } else {
+            this.root = new Node();
+            this.root.keys[0] = midleValue;
+            this.root.numKeys++;
+            this.root.children[0] = leftNode;
+            this.root.children[1] = rightNode;
+            leftNode.parent = this.root;
+            rightNode.parent = this.root;
+            this.root.isLeaf = false;
+           // this.stepsTree.add(CloneUtils.clone(this));
+            return this.root;
+        }
+    }
+
+    /*Delete */
+    public void deleteElement(double deletedValue) {
+        this.doDelete(this.root, deletedValue);
+        if (this.root.numKeys == 0) {
+            this.root = this.root.children[0];
+            this.root.parent = null;
+        }
+    }
+
+    public void doDelete(Node node, double val) {
+        if (node != null) {
+            int i;
+            for (i = 0; i < node.numKeys && node.keys[i] < val; i++) ;
+            if (i == node.numKeys) {
+                if (!node.isLeaf) {
+                    this.doDelete(node.children[node.numKeys], val);
                 }
-            } else if (node.isLastInternalNode()) {
-                // TODO: Case 1
-                System.out.println("Case 1: Delete");
-                node.removeChild(0);
-            }
 
-            while (!node.getChild(0).equals(root) && node.getSize() < halfNumber && flag) {
-//				System.out.println("Debug3");
-                System.out.println("This is case 3c: Recursively delete");
-                if (node.equals(root)) {
-                    for (int i = 0; i <= root.getSize(); i++) {
-                        if (root.getChild(i).getSize() == 0) {
-                            flag = true;
-                            break;
+            } else if (!node.isLeaf && node.keys[i] == val) {
+
+                this.doDelete(node.children[i + 1], val);
+            } else if (!node.isLeaf) {
+                this.doDelete(node.children[i], val);
+            } else if (node.isLeaf && node.keys[i] == val) {
+                for (int j = i; j < node.numKeys - 1; j++) {
+                    node.keys[j] = node.keys[j + 1];
+                }
+                node.numKeys--;
+
+                if (i == 0 && node.parent != null) {
+                    double nextSmallest = 0;
+                    Node parentNode = node.parent;
+                    int index;
+                    for (index = 0; parentNode.children[index] != node; index++) ;
+                    if (node.numKeys == 0) {
+                        if (index == parentNode.numKeys) {
                         } else {
-                            flag = false;
+                            nextSmallest = parentNode.children[index + 1].keys[0];
                         }
+                    } else {
+                        nextSmallest = node.keys[0];
                     }
-                }
-                if (flag) {
-                    node = balanceDeletedNode(node);
-                }
-            }
+                    while (parentNode != null) {
+                        if (index > 0 && parentNode.keys[index - 1] == val) {
+                            parentNode.keys[index - 1] = nextSmallest;
+                        }
+                        Node grandParent = parentNode.parent;
+                        for (index = 0; grandParent != null && grandParent.children[index] != parentNode; index++)
+                            ;
+                        parentNode = grandParent;
 
-            if (deleteNode == null) {
-                // Ktra xem da xoa truoc do chua hay moi chi rebalance/ replace
-                node = getNode(key);
-            } else {
-                node = deleteNode;
-            }
-
-            if (!node.equals(nullBTNode)) {
-                // Sau khi replace xong thi xoa node di (khi do, node da tro thanh la)
-                for (int i = 0; i < node.getSize(); i++) {
-                    if (node.getKey(i) == key) {
-                        node.removeKey(i);
                     }
-                }
-                treeSize--;
 
-                System.out.println("Xoa " + key);
-                stepTrees.add(CloneUtils.clone(this));
+                }
+                this.validateAfterDelete(node);
+
             }
-        }*/
+
+        }
     }
+
+
+    public void validateAfterDelete(Node node) {
+        if (node.numKeys < this.minKeys) {
+            if (node.parent == null) {
+                if (node.numKeys == 0) {
+                    this.root = node.children[0];
+                    if (this.root != null)
+                        this.root.parent = null;
+                }
+            } else {
+                Node parentNode = node.parent;
+                int index;
+                for (index = 0; parentNode.children[index] != node; index++) ;
+
+                if (index > 0 && parentNode.children[index - 1].numKeys > this.minKeys) {
+                    this.stealFromLeft(node, index);
+
+                } else if (index < parentNode.numKeys && parentNode.children[index + 1].numKeys > this.minKeys) {
+                    this.stealFromRight(node, index);
+
+                } else if (index == 0) {
+                    // Merge with right sibling
+                    Node nextNode = this.mergeRight(node);
+                    this.validateAfterDelete(nextNode.parent);
+                } else {
+                    // Merge with left sibling
+                    Node nextNode = this.mergeRight(parentNode.children[index - 1]);
+                    this.validateAfterDelete(nextNode.parent);
+                }
+            }
+        } else if (node.parent != null) {
+
+        }
+    }
+
+
+    public Node stealFromRight(Node node, int index) {
+        // Steal from right sibling
+        Node parentNode = node.parent;
+        Node rightSib = parentNode.children[index + 1];
+        node.numKeys++;
+
+        if (node.isLeaf) {
+            node.keys[node.numKeys - 1] = rightSib.keys[0];
+            parentNode.keys[index] = rightSib.keys[1];
+
+        } else {
+            node.keys[node.numKeys - 1] = parentNode.keys[index];
+            parentNode.keys[index] = rightSib.keys[0];
+        }
+
+        if (!node.isLeaf) {
+            node.children[node.numKeys] = rightSib.children[0];
+            node.children[node.numKeys].parent = node;
+
+
+            for (int i = 1; i < rightSib.numKeys + 1; i++) {
+                rightSib.children[i - 1] = rightSib.children[i];
+            }
+
+        }
+        for (int i = 1; i < rightSib.numKeys; i++) {
+            rightSib.keys[i - 1] = rightSib.keys[i];
+        }
+        rightSib.numKeys--;
+
+        return node;
+
+    }
+
+
+    public Node stealFromLeft(Node node, int index) {
+        Node parentNode = node.parent;
+        node.numKeys++;
+
+        for (int i = node.numKeys - 1; i > 0; i--) {
+            node.keys[i] = node.keys[i - 1];
+        }
+        Node leftSib = parentNode.children[index - 1];
+
+        if (node.isLeaf) {
+            node.keys[0] = leftSib.keys[leftSib.numKeys - 1];
+            parentNode.keys[index - 1] = leftSib.keys[leftSib.numKeys - 1];
+        } else {
+            node.keys[0] = parentNode.keys[index - 1];
+            parentNode.keys[index - 1] = leftSib.keys[leftSib.numKeys - 1];
+        }
+
+        if (!node.isLeaf) {
+            for (int i = node.numKeys; i > 0; i--) {
+                node.children[i] = node.children[i - 1];
+            }
+            node.children[0] = leftSib.children[leftSib.numKeys];
+            leftSib.children[leftSib.numKeys] = null;
+            node.children[0].parent = node;//aqui error
+        }
+
+        leftSib.numKeys--;
+
+        return node;
+    }
+
+
+    public Node mergeRight(Node node) {
+
+        Node parentNode = node.parent;
+        int index;
+        for (index = 0; parentNode.children[index] != node; index++) ;
+        Node rightSib = parentNode.children[index + 1];
+
+        if (node.isLeaf) {
+        } else {
+            node.keys[node.numKeys] = parentNode.keys[index];
+        }
+
+        for (int i = 0; i < rightSib.numKeys; i++) {
+            int index1 = node.numKeys + 1 + i;
+            if (node.isLeaf) {
+                index1 -= 1;
+            }
+            node.keys[index1] = rightSib.keys[i];
+
+        }
+        if (!node.isLeaf) {
+            for (int i = 0; i <= rightSib.numKeys; i++) {
+                node.children[node.numKeys + 1 + i] = rightSib.children[i];
+                node.children[node.numKeys + 1 + i].parent = node;
+
+            }
+            node.numKeys = node.numKeys + rightSib.numKeys + 1;
+
+        } else {
+            node.numKeys = node.numKeys + rightSib.numKeys;
+            node.next = rightSib.next;
+
+        }
+        for (int i = index + 1; i < parentNode.numKeys; i++) {
+            parentNode.children[i] = parentNode.children[i + 1];
+            parentNode.keys[i - 1] = parentNode.keys[i];
+        }
+        parentNode.numKeys--;
+
+        return node;
+    }
+
+
+    /*find*/
+
+    public void findElement( double value)
+    {
+
+        this.findInTree(this.root, value);
+
+    }
+    public void findInTree(Node node, double val) {
+        if (node != null) {
+            int i;
+            for (i = 0; i < node.numKeys && node.keys[i] < val; i++) ;
+            if (i == node.numKeys) {
+                if (!node.isLeaf) {
+                    this.findInTree(node.children[node.numKeys], val);
+                } else {
+                }
+            } else if (node.keys[i] > val) {
+                if (!node.isLeaf) {
+                    System.out.println("Step");
+                    System.out.println(node.children[i]);
+                    this.findInTree(node.children[i], val);
+                } else {
+                    System.out.println("Element " + val + " is not in the tree");
+                }
+            } else {
+                if (node.isLeaf) {
+                    System.out.println("Element " + val + " found");
+                    System.out.println("Step");
+
+                } else {
+                    System.out.println("Step");
+                    System.out.println(node.children[i + 1]);
+                    this.findInTree(node.children[i + 1], val);
+                }
+            }
+        } else {
+            System.out.println("Element " + val + " is not in the tree");
+        }
+    }
+
+
+
+    /*Print Console */
+
+    public void printTree(Node node, int level) {
+        if (node != null) {
+            int i = node.numKeys - 1;
+            while (i >= 0) {
+                printTree(node.children[i + 1], level + 1);
+                String mensaje = "";
+                for (int j = 0; j < level; j++) {
+                    mensaje += "\t";
+                }
+                System.out.println(mensaje + "|" + node.keys[i]);
+                i -= 1;
+            }
+            printTree(node.children[0], level + 1);
+        }
+    }
+
+    public void print() {
+        System.out.println("****************************");
+        printTree(this.root, 0);
+    }
+
+    /*public void  printTree()
+    {
+
+        this.commands = new Array();
+        this.cmd("SetText", this.messageID, "Printing tree");
+        var firstLabel = this.nextIndex;
+
+        if (this.treeRoot != null)
+        {
+            this.xPosOfNextLabel = FIRST_PRINT_POS_X;
+            this.yPosOfNextLabel = this.first_print_pos_y;
+
+            var tmp = this.treeRoot;
+
+            this.cmd("SetHighlight", tmp.graphicID, 1);
+            this.cmd("Step");
+            while (!tmp.isLeaf)
+            {
+                this.cmd("SetEdgeHighlight", tmp.graphicID, tmp.children[0].graphicID, 1);
+                this.cmd("Step");
+                this.cmd("SetHighlight", tmp.graphicID, 0);
+                this.cmd("SetHighlight", tmp.children[0].graphicID, 1);
+                this.cmd("SetEdgeHighlight", tmp.graphicID, tmp.children[0].graphicID, 0);
+                this.cmd("Step");
+                tmp = tmp.children[0];
+            }
+
+            while (tmp!= null)
+            {
+                this.cmd("SetHighlight", tmp.graphicID, 1);
+                for (i = 0; i < tmp.numKeys; i++)
+                {
+                    var nextLabelID = this.nextIndex++;
+                    this.cmd("CreateLabel", nextLabelID, tmp.keys[i], this.getLabelX(tmp, i), tmp.y);
+                    this.cmd("SetForegroundColor", nextLabelID, PRINT_COLOR);
+                    this.cmd("Move", nextLabelID, this.xPosOfNextLabel, this.yPosOfNextLabel);
+                    this.cmd("Step");
+                    this.xPosOfNextLabel +=  PRINT_HORIZONTAL_GAP;
+                    if (this.xPosOfNextLabel > PRINT_MAX)
+                    {
+                        this.xPosOfNextLabel = FIRST_PRINT_POS_X;
+                        this.yPosOfNextLabel += PRINT_VERTICAL_GAP;
+                    }
+                }
+                if (tmp.next != null)
+                {
+                    this.cmd("SetEdgeHighlight", tmp.graphicID, tmp.next.graphicID, 1);
+                    this.cmd("Step");
+                    this.cmd("SetEdgeHighlight", tmp.graphicID, tmp.next.graphicID, 0);
+                }
+                this.cmd("SetHighlight", tmp.graphicID, 0);
+                tmp = tmp.next;
+            }
+            this.cmd("Step");
+            for (var i = firstLabel; i < this.nextIndex; i++)
+            {
+                this.cmd("Delete", i);
+            }
+            this.nextIndex = firstLabel;
+        }
+        this.cmd("SetText", this.messageID, "");
+        return this.commands;
+    }*/
+
 
 
 }

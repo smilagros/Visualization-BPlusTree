@@ -1,8 +1,11 @@
 import javafx.application.Application;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
@@ -12,17 +15,20 @@ import java.util.LinkedList;
 public class Main extends Application {
 
     private double key;
+    private int order = 3;
+
     private BTreePane btPane;
     private TextField keyText = new TextField();
+    private TextField orderText = new TextField();
 
 
     private LinkedList<BPlusTree> bTreeLinkedList = new LinkedList<BPlusTree>();
+
     BPlusTree bTree = new BPlusTree();
 
     @Override
     public void start(Stage primaryStage) {
 
-        bTree.initialize(5);
         final int windowHeight = 480;
         final int windowWidth = 720;
 
@@ -35,6 +41,9 @@ public class Main extends Application {
         // TextField
         keyText.setPrefWidth(60);
         keyText.setAlignment(Pos.BASELINE_RIGHT);
+        // OrderField
+        orderText.setPrefWidth(60);
+        orderText.setAlignment(Pos.BOTTOM_CENTER);
         // Button
         Button insertButton = new Button("Insertar");
         Button deleteButton = new Button("Eliminar");
@@ -42,15 +51,42 @@ public class Main extends Application {
         Button resetButton = new Button("Reset");
         resetButton.setId("reset");
         resetButton.setStyle("-fx-base: red;");
+
         Label nullLabel = new Label();
         nullLabel.setPrefWidth(30);
 
-        hBox.getChildren().addAll(new Label("Ingresa un número: "), keyText, insertButton, deleteButton, searchButton,
+        hBox.getChildren().addAll(new Label("Ingresa un número: "), keyText, new Label("Order: "), orderText, insertButton, deleteButton, searchButton,
                 resetButton, nullLabel);
         hBox.setAlignment(Pos.CENTER);
 
-        // Create TreePane in center
+        //Set Order
+        orderText.setText("3");
 
+        orderText.setOnKeyPressed(new EventHandler<KeyEvent>() {
+            public void handle(KeyEvent ke) {
+                System.out.println("Key Pressed: " + ke.getText());
+                if (!(ke.getText().equalsIgnoreCase(""))) {
+                    order = Integer.parseInt(ke.getText());
+                    bTree.initialize(order);
+                } else {
+                    //orderText.setText("3");
+                    bTree.initialize(3);
+
+                }
+
+            }
+        });
+
+        keyText.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            public void handle(MouseEvent  ke) {
+                System.out.println("Key Pressed: " + orderText.getText());
+                if (orderText.getText().equalsIgnoreCase("")) {
+                    orderText.setText("3");
+                    //bTree.initialize(3);
+                }
+            }
+        });
+        // Create TreePane in center
         btPane = new BTreePane(windowWidth / 2, 50, bTree);
         btPane.setPrefSize(windowHeight, windowWidth);
         borderPane.setCenter(btPane);
@@ -67,6 +103,8 @@ public class Main extends Application {
         primaryStage.setTitle("Visualizador B+ Tree");
         primaryStage.setScene(scene);
         primaryStage.show();
+
+
     }
 
 
@@ -74,11 +112,9 @@ public class Main extends Application {
         try {
             key = Double.parseDouble(keyText.getText());
             keyText.setText("");
-            bTree.setStepTrees(new LinkedList<BPlusTree>());
-
-            bTree.insert(key);
-
-            bTreeLinkedList = bTree.getStepTrees();
+            bTree.setStepsTree(new LinkedList<BPlusTree>());
+            bTree.insertElement(key);
+            bTreeLinkedList = bTree.getStepsTree();
             int size = bTreeLinkedList.size();
             btPane.updatePane(bTreeLinkedList.get(size - 1));
         } catch (NumberFormatException e) {
@@ -90,17 +126,18 @@ public class Main extends Application {
 
     private void deleteValue() {
         try {
-            key = Integer.parseInt(keyText.getText());
+            key = Double.parseDouble(keyText.getText());
             keyText.setText("");
-            if (bTree.getNode(key) == bTree.nullBTNode) {
-                throw new Exception("Not in the tree!");
-            }
-            bTree.setStepTrees(new LinkedList<BPlusTree>());
+            //if (bTree.getNode(key) == null) {
+            //  throw new Exception("Not in the tree!");
+            //}
+            bTree.setStepsTree(new LinkedList<BPlusTree>());
 
-            bTree.delete(key);
+            bTree.deleteElement(key);
 
-            bTreeLinkedList = bTree.getStepTrees();
-            btPane.updatePane(bTreeLinkedList.get(0));
+            bTreeLinkedList = bTree.getStepsTree();
+            int size = bTreeLinkedList.size();
+            btPane.updatePane(bTreeLinkedList.get(size - 1));
         } catch (NumberFormatException e) {
             Alert alert = new Alert(Alert.AlertType.WARNING, "Dato de entrada incorrecto!", ButtonType.OK);
             alert.show();
@@ -128,6 +165,7 @@ public class Main extends Application {
 
     private void reset() {
         keyText.setText("");
+        orderText.setText("3");
         bTree.setRoot(null);
         bTreeLinkedList.clear();
         btPane.updatePane(bTree);

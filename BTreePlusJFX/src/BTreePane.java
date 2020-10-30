@@ -48,14 +48,14 @@ public class BTreePane extends Pane {
     private void DrawBTree(Node root, double x, double y) {
         if (root != null) {
             // Draw keys of node
-            for (int i = 0; i < root.getSize(); i++) {
-                String label = String.valueOf(root.getKeys().get(i));
+            for (int i = 0; i < root.numKeys; i++) {
+                String label = String.valueOf(root.keys[i]);
                 DrawNode(label, x + i * rectangleWidth, y, Color.web("#6ab5ff"));
             }
             // Draw line
             double startY = y + 2 * fontSize;
             if (!root.isLastInternalNode()) {
-                for (int i = 0; i < root.getChildren().size(); i++) {
+                for (int i = 0; i < root.children.length; i++) {
                     // startX, endX = start, end of Line
                     // startX2 = start of child nodes
                     double startX = x + i * rectangleWidth;
@@ -64,14 +64,14 @@ public class BTreePane extends Pane {
 
                     if ((double) i > ((double) root.getSize()) / 2) {
                         startX2 = startX
-                                + (bTree.getOrder() - 1) * (bTree.getHeight(root.getChildren().get(i)) - 1) * rectangleWidth / 2;
-                        endX = startX2 + ((double) root.getChildren().get(i).getSize()) / rectangleWidth;
-                    } else if ((double) i < ((double) root.getSize()) / 2) {
-                        endX = startX - (bTree.getOrder() - 1) * (bTree.getHeight(root.getChildren().get(i)) - 1) * rectangleWidth / 2
-                                - ((double) root.getChildren().get(i).getSize()) /  rectangleWidth;
-                        startX2 = endX - ((double) root.getChildren().get(i).getSize()) /rectangleWidth;
+                                + (bTree.getOrder() - 1) * (bTree.getHeight(root.children[i]) - 1) * rectangleWidth / 2;
+                        endX = startX2 + ( root.children[i].numKeys) / rectangleWidth;
+                    } else if ((double) i < ( root.numKeys) / 2) {
+                        endX = startX - (bTree.getOrder() - 1) * (bTree.getHeight(root.children[i]) - 1) * rectangleWidth / 2
+                                - ((double) root.children[i].numKeys) /  rectangleWidth;
+                        startX2 = endX - (root.children[i].numKeys) /rectangleWidth;
                     } else {
-                        startX2 = startX - ((double) root.getChildren().get(i).getSize()) / rectangleWidth;
+                        startX2 = startX - ( root.children[i].numKeys) / rectangleWidth;
                         endX = startX;
                     }
                     //
@@ -84,13 +84,13 @@ public class BTreePane extends Pane {
                     }
 
                     // Draw child nodes
-                    if (!root.getChildren().get(i).isNull()) {
+                    if (!root.children[i].isNull()) {
                         Line line = new Line(startX, startY, endX, y + rowSpace);
                         line.setStroke(Color.SILVER);
                         line.setStrokeWidth(1.5);
                         this.getChildren().add(line);
                     }
-                    DrawBTree(root.getChildren().get(i), startX2, y + rowSpace);
+                    DrawBTree(root.children[i], startX2, y + rowSpace);
                 }
             }
         }
@@ -115,16 +115,16 @@ public class BTreePane extends Pane {
                         // di xuong key ben trai
                         y += rowSpace;
                         if ((double) i < ((double) currentNode.getSize()) / 2) {
-                            x = x - (bTree.getOrder() - 1) * (bTree.getHeight(currentNode.getChildren().get(i)) - 1) * rectangleWidth
-                                    / 2 - ((double) currentNode.getChildren().get(i).getSize()) * rectangleWidth;
+                            x = x - (bTree.getOrder() - 1) * (bTree.getHeight(currentNode.children[i]) - 1) * rectangleWidth
+                                    / 2 - ((double) currentNode.children[i].getSize()) * rectangleWidth;
                         } else {
-                            x = x - ((double) currentNode.getChildren().get(i).getSize()) / 2 * rectangleWidth;
+                            x = x - ((double) currentNode.children[i].getSize()) / 2 * rectangleWidth;
                         }
                         if (i == 0) {
                             x -= rectangleWidth * 2;
                         }
 
-                        currentNode = currentNode.getChildren().get(i);
+                        currentNode = currentNode.children[i];
                         i = 0;
                     } else {
                         // Mover a la siguiente clave en el nodo
@@ -135,10 +135,10 @@ public class BTreePane extends Pane {
                 // Mueva hacia abajo la tecla a la derecha del nodo
                 if (!currentNode.isNull()) {
                     y += rowSpace;
-                    x = x + (bTree.getOrder() - 1) * (bTree.getHeight(currentNode.getChildren().get(i)) - 1) * rectangleWidth / 2
+                    x = x + (bTree.getOrder() - 1) * (bTree.getHeight(currentNode.children[i]) - 1) * rectangleWidth / 2
                             + rectangleWidth * 2;
 
-                    currentNode = currentNode.getChildren().get(currentNode.getSize());
+                    currentNode = currentNode.children[currentNode.getSize()];
                 }
             }
         }
