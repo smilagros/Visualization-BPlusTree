@@ -29,8 +29,8 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) {
 
-        final int windowHeight = 480;
-        final int windowWidth = 720;
+        final int windowHeight = 540;
+        final int windowWidth = 900;
 
         BorderPane borderPane = new BorderPane();
 
@@ -61,25 +61,25 @@ public class Main extends Application {
 
         //Set Order
         orderText.setText("3");
+        bTree.initialize(order);
 
         orderText.setOnKeyPressed(new EventHandler<KeyEvent>() {
             public void handle(KeyEvent ke) {
-                System.out.println("Key Pressed: " + ke.getText());
                 if (!(ke.getText().equalsIgnoreCase(""))) {
                     order = Integer.parseInt(ke.getText());
                     bTree.initialize(order);
                 } else {
                     //orderText.setText("3");
                     bTree.initialize(3);
-
                 }
+               // System.out.println("Key Pressed: " + ke.getText());
 
             }
         });
 
         keyText.setOnMouseClicked(new EventHandler<MouseEvent>() {
             public void handle(MouseEvent  ke) {
-                System.out.println("Key Pressed: " + orderText.getText());
+                //System.out.println("Key Pressed: " + orderText.getText());
                 if (orderText.getText().equalsIgnoreCase("")) {
                     orderText.setText("3");
                     //bTree.initialize(3);
@@ -98,7 +98,7 @@ public class Main extends Application {
 
 
         // Create a scene
-        Scene scene = new Scene(borderPane, 720, 360);
+        Scene scene = new Scene(borderPane, 900, 540);
         scene.getStylesheets().add(getClass().getResource("BtreeStyle.css").toExternalForm());
         primaryStage.setTitle("Visualizador B+ Tree");
         primaryStage.setScene(scene);
@@ -128,9 +128,9 @@ public class Main extends Application {
         try {
             key = Double.parseDouble(keyText.getText());
             keyText.setText("");
-            //if (bTree.getNode(key) == null) {
-            //  throw new Exception("Not in the tree!");
-            //}
+            if (bTree.getNode(key) == null) {
+              throw new Exception("Not in the tree!");
+            }
             bTree.setStepsTree(new LinkedList<BPlusTree>());
 
             bTree.deleteElement(key);

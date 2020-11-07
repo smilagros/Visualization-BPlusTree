@@ -1,5 +1,7 @@
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 
 public class BPlusTree implements Serializable {
 
@@ -43,12 +45,10 @@ public class BPlusTree implements Serializable {
     /**
      * Initializes the B Plus Tree. Sets the degree of the BPlus Tree as m
      *
-     * @param order
-     *            the degree of the B Plus Tree
+     * @param order the degree of the B Plus Tree
      */
     public void initialize(int order) {
         // At initialization, order of the tree is set to m. Root is set to null
-        // At initialization, order of the node is set to order. Root is set to null
         this.order = order;
         this.root = null;
         this.maxDegree = order;
@@ -57,6 +57,7 @@ public class BPlusTree implements Serializable {
         this.splitIndex = (int) Math.ceil((order) / 2);
 
     }
+
     /**
      * @return true, if node is empty
      */
@@ -75,9 +76,11 @@ public class BPlusTree implements Serializable {
     public Node getRoot() {
         return this.root;
     }
-
+    /**
+     * @return order
+     */
     public int getOrder() {
-        return order;
+        return this.order;
     }
 
 
@@ -94,20 +97,31 @@ public class BPlusTree implements Serializable {
      * @return the height of the node position
      */
     public int getHeight(Node node) {
+
         int height = 1;
-        Node currentNode = node;
-        currentNode = currentNode.getNext();
-        while (null != currentNode) {
-            //printNode(currentNode);
-            currentNode = currentNode.getNext();
+
+        Node currNode = this.root;
+        // Traverse to the corresponding external node that would 'should'
+        // contain starting key (key1)
+
+        while (currNode.getChildren()[0] != null) {
+            currNode = currNode.getChildren()[binarySearchWithinInternalNode(currNode.getKeys()[0], currNode.getKeys(), currNode.numKeys)];
             height++;
+
         }
+
         return height;
 
 
+        // Start
+
     }
 
-    /*Insert Element*/
+    /**
+     * Insert a value and value pair to the B Plus Tree
+     *
+     * @param value the key to be inserted
+     */
     public void insertElement(double value) {
         if (this.root == null) {
             this.root = new Node();
@@ -118,7 +132,7 @@ public class BPlusTree implements Serializable {
         } else {
             this.insert(this.root, value);
             this.stepsTree.clear();
-             this.stepsTree.add(CloneUtils.clone(this));
+            this.stepsTree.add(CloneUtils.clone(this));
         }
     }
 
@@ -173,12 +187,8 @@ public class BPlusTree implements Serializable {
         int rightSplit = this.splitIndex;
         int leftSplit = this.splitIndex;
 
-        if (node.isLeaf) {
-            rightNode.next = node.next;
-            node.next = rightNode;
-        } else {
+        if (!node.isLeaf) {
             rightSplit = rightSplit + 1;
-            //leftSplit = leftSplit;
         }
 
         if (!node.isLeaf) {
@@ -196,10 +206,10 @@ public class BPlusTree implements Serializable {
         }
 
         if (!node.isLeaf) {
-            for (int j = 0; j < leftSplit+1 ; j++) {
+            for (int j = 0; j < leftSplit + 1; j++) {
                 leftNode.children[j] = node.children[j];
                 leftNode.isLeaf = false;
-                node.children[j].parent = leftNode;
+                //node.children[j].parent = leftNode;
                 node.children[j] = null;
             }
         }
@@ -208,6 +218,17 @@ public class BPlusTree implements Serializable {
             leftNode.keys[i] = node.keys[i];
             leftNode.numKeys++;
         }
+
+        if (node.isLeaf) {
+            rightNode.next = node.next;
+            node.next = rightNode;
+        }
+
+        node.keys = leftNode.keys;
+        node.children = leftNode.children;
+        node.numKeys = leftNode.numKeys;
+
+        leftNode = node;
 
         if (node.parent != null) {
             Node currentParent = node.parent;
@@ -231,6 +252,7 @@ public class BPlusTree implements Serializable {
             return node.parent;
 
         } else {
+
             this.root = new Node();
             this.root.keys[0] = midleValue;
             this.root.numKeys++;
@@ -239,7 +261,8 @@ public class BPlusTree implements Serializable {
             leftNode.parent = this.root;
             rightNode.parent = this.root;
             this.root.isLeaf = false;
-           // this.stepsTree.add(CloneUtils.clone(this));
+
+            // this.stepsTree.add(CloneUtils.clone(this));
             return this.root;
         }
     }
@@ -247,10 +270,11 @@ public class BPlusTree implements Serializable {
     /*Delete */
     public void deleteElement(double deletedValue) {
         this.doDelete(this.root, deletedValue);
-        if (this.root.numKeys == 0) {
+        /*if (this.root.numKeys == 0) {
             this.root = this.root.children[0];
             this.root.parent = null;
-        }
+
+        }*/
     }
 
     public void doDelete(Node node, double val) {
@@ -263,7 +287,6 @@ public class BPlusTree implements Serializable {
                 }
 
             } else if (!node.isLeaf && node.keys[i] == val) {
-
                 this.doDelete(node.children[i + 1], val);
             } else if (!node.isLeaf) {
                 this.doDelete(node.children[i], val);
@@ -294,12 +317,12 @@ public class BPlusTree implements Serializable {
                         for (index = 0; grandParent != null && grandParent.children[index] != parentNode; index++)
                             ;
                         parentNode = grandParent;
-
                     }
 
                 }
                 this.validateAfterDelete(node);
-
+                this.stepsTree.clear();
+                this.stepsTree.add(CloneUtils.clone(this));
             }
 
         }
@@ -453,12 +476,12 @@ public class BPlusTree implements Serializable {
 
     /*find*/
 
-    public void findElement( double value)
-    {
+    public void findElement(double value) {
 
         this.findInTree(this.root, value);
 
     }
+
     public void findInTree(Node node, double val) {
         if (node != null) {
             int i;
@@ -517,70 +540,98 @@ public class BPlusTree implements Serializable {
         printTree(this.root, 0);
     }
 
-    /*public void  printTree()
-    {
+    public List search(double key1, double key2) {
+        System.out.println("Searching between keys " + key1 + ", " + key2);
+        List searchKeys = new ArrayList<>();
+        Node currNode = this.root;
+        // Traverse to the corresponding external node that would 'should'
+        // contain starting key (key1)
 
-        this.commands = new Array();
-        this.cmd("SetText", this.messageID, "Printing tree");
-        var firstLabel = this.nextIndex;
-
-        if (this.treeRoot != null)
-        {
-            this.xPosOfNextLabel = FIRST_PRINT_POS_X;
-            this.yPosOfNextLabel = this.first_print_pos_y;
-
-            var tmp = this.treeRoot;
-
-            this.cmd("SetHighlight", tmp.graphicID, 1);
-            this.cmd("Step");
-            while (!tmp.isLeaf)
-            {
-                this.cmd("SetEdgeHighlight", tmp.graphicID, tmp.children[0].graphicID, 1);
-                this.cmd("Step");
-                this.cmd("SetHighlight", tmp.graphicID, 0);
-                this.cmd("SetHighlight", tmp.children[0].graphicID, 1);
-                this.cmd("SetEdgeHighlight", tmp.graphicID, tmp.children[0].graphicID, 0);
-                this.cmd("Step");
-                tmp = tmp.children[0];
-            }
-
-            while (tmp!= null)
-            {
-                this.cmd("SetHighlight", tmp.graphicID, 1);
-                for (i = 0; i < tmp.numKeys; i++)
-                {
-                    var nextLabelID = this.nextIndex++;
-                    this.cmd("CreateLabel", nextLabelID, tmp.keys[i], this.getLabelX(tmp, i), tmp.y);
-                    this.cmd("SetForegroundColor", nextLabelID, PRINT_COLOR);
-                    this.cmd("Move", nextLabelID, this.xPosOfNextLabel, this.yPosOfNextLabel);
-                    this.cmd("Step");
-                    this.xPosOfNextLabel +=  PRINT_HORIZONTAL_GAP;
-                    if (this.xPosOfNextLabel > PRINT_MAX)
-                    {
-                        this.xPosOfNextLabel = FIRST_PRINT_POS_X;
-                        this.yPosOfNextLabel += PRINT_VERTICAL_GAP;
-                    }
-                }
-                if (tmp.next != null)
-                {
-                    this.cmd("SetEdgeHighlight", tmp.graphicID, tmp.next.graphicID, 1);
-                    this.cmd("Step");
-                    this.cmd("SetEdgeHighlight", tmp.graphicID, tmp.next.graphicID, 0);
-                }
-                this.cmd("SetHighlight", tmp.graphicID, 0);
-                tmp = tmp.next;
-            }
-            this.cmd("Step");
-            for (var i = firstLabel; i < this.nextIndex; i++)
-            {
-                this.cmd("Delete", i);
-            }
-            this.nextIndex = firstLabel;
+        while (currNode.getChildren()[0] != null) {
+            currNode = currNode.getChildren()[binarySearchWithinInternalNode(key1, currNode.getKeys(), currNode.numKeys)];
         }
-        this.cmd("SetText", this.messageID, "");
-        return this.commands;
-    }*/
+
+        // Start from current node and add keys whose value lies between key1 and key2 with their corresponding pairs
+        // Stop if end of list is encountered or if value encountered in list is greater than key2
+
+        boolean endSearch = false;
+        while (null != currNode && !endSearch) {
+            for (int i = 0; i < currNode.numKeys; i++) {
+                Double key = currNode.getKeys()[i];
+                if (key >= key1 && key <= key2)
+                    searchKeys.add(currNode.getKeys()[i]);
+                if (currNode.getKeys()[i] > key2) {
+                    endSearch = true;
+                }
+            }
+            currNode = currNode.getNext();
+        }
+
+        return searchKeys;
+    }
 
 
+    /**
+     * Modified Binary search within internal node.
+     *
+     * @param key     the key to be searched
+     * @param keyList the list of keys to be searched
+     * @return the first index of the list at which the key which is greater
+     * than the input key
+     */
+    public int binarySearchWithinInternalNode(double key, Double[] keyList, int length) {
+        int st = 0;
+        int end = length - 1;
+        int mid;
+        int index = -1;
+        // Return first index if key is less than the first element
+        if (key < keyList[st]) {
+            return 0;
+        }
+        // Return array size + 1 as the new positin of the key if greater than
+        // last element
+        if (key >= keyList[end]) {
+            return length;
+        }
+        while (st <= end) {
+            mid = (st + end) / 2;
+            // Following condition ensures that we find a location s.t. key is
+            // smaller than element at that index and is greater than or equal
+            // to the element at the previous index. This location is where the
+            // key would be inserted
+            if (key < keyList[mid] && key >= keyList[mid - 1]) {
+                index = mid;
+                break;
+            } // Following conditions follow normal Binary Search
+            else if (key >= keyList[mid]) {
+                st = mid + 1;
+            } else {
+                end = mid - 1;
+            }
+        }
+        return index;
+    }
+
+
+    public Node getNode(double key) {
+        Node currentNode = root;
+        while (currentNode!=null) {
+            int i = 0;
+            while (i < currentNode.numKeys) {
+                if (currentNode.keys[i].equals(key)) {
+                    return currentNode;
+                } else if (currentNode.keys[i].compareTo(key) > 0) {
+                    currentNode = currentNode.children[i];
+                    i = 0;
+                } else {
+                    i++;
+                }
+            }
+            if (!currentNode.isNull()) {
+                currentNode = currentNode.children[currentNode.numKeys];
+            }
+        }
+        return null;
+    }
 
 }

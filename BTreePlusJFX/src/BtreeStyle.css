@@ -1,10 +1,10 @@
 .button {
-	-fx-background-color: #476c98;
+	-fx-background-color: #4962e5;
 	-fx-background-radius: 3;
 	-fx-font-weight: bold;
 	-fx-font-size:12;
 	-fx-text-fill:white;
-	-fx-border-color: #476c98;
+	-fx-border-color: #277fe9;
 	-fx-border-radius: 3;
 	-fx-border-width:1;
 }
@@ -13,10 +13,10 @@
 	-fx-text-fill: #476c98;
 }
 #reset {
-	-fx-border-color: #f57f7f;
-	-fx-background-color: #f57f7f;
+	-fx-border-color: #ee0a0a;
+	-fx-background-color: #ec5174;
 }
 #reset:hover {
 	-fx-background-color: white;
-	-fx-text-fill: #f57f7f;
+	-fx-text-fill: #476c98;
 }

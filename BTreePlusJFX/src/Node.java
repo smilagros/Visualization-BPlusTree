@@ -45,20 +45,24 @@ public class Node implements Serializable {
 
 
     public int getSize() {
-        return keys.length;
+        return this.numKeys;
     }
 
     public boolean isLeaf() {
-        return isLeaf;
-    }
+        if (this.isLeaf == true) {
+            return true;
+        } else {
 
+            return false;
+        }
+    }
     public void setLeaf(boolean value) {
         this.isLeaf = value;
     }
 
 
     public int getNumKeys() {
-        return numKeys;
+        return this.numKeys;
     }
 
     public void setNumKeys(int numKeys) {
@@ -70,26 +74,17 @@ public class Node implements Serializable {
      * @return the key
      */
     public Double getKey(int index) {
-        return keys[index];
+        return this.keys[index];
     }
 
-    /**
-     * @return true, if node is a leaf
-     */
-    public boolean isLastInternalNode() {
-        if (this.keys.length == 0)
-            return false;
-        for (Node node : this.children)
-            if (node!= null)
-                return false;
-        return true;
-    }
 
-    /**
-     * @return true, if keys is empty
-     */
     public boolean isNull() {
-        return true;
+        if (keys.length == 0) {
+            return true;
+
+        } else {
+            return false;
+        }
     }
 
 
@@ -121,15 +116,6 @@ public class Node implements Serializable {
      */
     public Node[] getChildren() {
         return children;
-    }
-
-    /**
-     * Gets the children.
-     *
-     * @return the children
-     */
-    public int getSizeChildren() {
-        return children.length;
     }
 
 
