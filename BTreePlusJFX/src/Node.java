@@ -31,6 +31,14 @@ public class Node implements Serializable {
     public boolean isLeaf;
 
 
+    public double x;
+
+    public double y;
+
+    public double [] widths;
+
+    public double width;
+
     /**
      * Instantiates a new node.
      */
@@ -38,6 +46,7 @@ public class Node implements Serializable {
         this.keys = new Double[BPlusTree.order + 1];
         this.children = new Node[BPlusTree.order + 2];
         this.numKeys = 0;
+        this.widths = new double[BPlusTree.order + 1];
         this.isLeaf = true;
         this.parent = null;
         this.next = null;

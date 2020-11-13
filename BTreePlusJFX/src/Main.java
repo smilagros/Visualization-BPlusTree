@@ -28,9 +28,9 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) {
+        final int windowWidth = 1000;
 
-        final int windowHeight = 540;
-        final int windowWidth = 900;
+        final int windowHeight = 500;
 
         BorderPane borderPane = new BorderPane();
 
@@ -72,13 +72,13 @@ public class Main extends Application {
                     //orderText.setText("3");
                     bTree.initialize(3);
                 }
-               // System.out.println("Key Pressed: " + ke.getText());
+                // System.out.println("Key Pressed: " + ke.getText());
 
             }
         });
 
         keyText.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            public void handle(MouseEvent  ke) {
+            public void handle(MouseEvent ke) {
                 //System.out.println("Key Pressed: " + orderText.getText());
                 if (orderText.getText().equalsIgnoreCase("")) {
                     orderText.setText("3");
@@ -129,7 +129,7 @@ public class Main extends Application {
             key = Double.parseDouble(keyText.getText());
             keyText.setText("");
             if (bTree.getNode(key) == null) {
-              throw new Exception("Not in the tree!");
+                throw new Exception("Not in the tree!");
             }
             bTree.setStepsTree(new LinkedList<BPlusTree>());
 
