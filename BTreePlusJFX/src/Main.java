@@ -16,10 +16,15 @@ public class Main extends Application {
 
     private double key;
     private int order = 3;
+    private double key1;
+    private double key2;
 
     private BTreePane btPane;
     private TextField keyText = new TextField();
     private TextField orderText = new TextField();
+
+    private TextField numberOne = new TextField();
+    private TextField numberTwo = new TextField();
 
 
     private LinkedList<BPlusTree> bTreeLinkedList = new LinkedList<BPlusTree>();
@@ -44,10 +49,16 @@ public class Main extends Application {
         // OrderField
         orderText.setPrefWidth(60);
         orderText.setAlignment(Pos.BOTTOM_CENTER);
+        // Between search
+        numberOne.setPrefWidth(60);
+        numberOne.setAlignment(Pos.BOTTOM_CENTER);
+        numberTwo.setPrefWidth(60);
+        numberTwo.setAlignment(Pos.BOTTOM_CENTER);
         // Button
         Button insertButton = new Button("Insertar");
         Button deleteButton = new Button("Eliminar");
         Button searchButton = new Button("Buscar");
+        Button searchBetweenButton = new Button("Buscar2");
         Button resetButton = new Button("Reset");
         resetButton.setId("reset");
         resetButton.setStyle("-fx-base: red;");
@@ -55,9 +66,10 @@ public class Main extends Application {
         Label nullLabel = new Label();
         nullLabel.setPrefWidth(30);
 
-        hBox.getChildren().addAll(new Label("Ingresa un número: "), keyText, new Label("Order: "), orderText, insertButton, deleteButton, searchButton,
-                resetButton, nullLabel);
+        hBox.getChildren().addAll(new Label("Ingresa un número: "), keyText, new Label("Order: "), orderText,  insertButton, deleteButton, searchButton,
+                resetButton, numberOne, numberTwo,searchBetweenButton,nullLabel);
         hBox.setAlignment(Pos.CENTER);
+
 
         //Set Order
         orderText.setText("3");
@@ -94,6 +106,8 @@ public class Main extends Application {
         insertButton.setOnMouseClicked(e -> insertValue());
         deleteButton.setOnMouseClicked(e -> deleteValue());
         searchButton.setOnMouseClicked(e -> searchValue());
+        searchBetweenButton.setOnMouseClicked(e -> searchBetweenValues());
+
         resetButton.setOnMouseClicked(e -> reset());
 
 
@@ -155,6 +169,23 @@ public class Main extends Application {
 
         } catch (NumberFormatException e) {
             Alert alert = new Alert(Alert.AlertType.WARNING, "Dato de entrada incorrecto!", ButtonType.OK);
+            alert.show();
+        } catch (Exception e) {
+            Alert alert = new Alert(Alert.AlertType.WARNING, e.getMessage(), ButtonType.OK);
+            alert.show();
+        }
+    }
+
+    private void searchBetweenValues() {
+        try {
+            key1 = Double.parseDouble(numberOne.getText());
+            numberOne.setText("");
+            key2 = Double.parseDouble(numberTwo.getText());
+            numberTwo.setText("");
+            btPane.searchPathColoring2(bTree, key1, key2);
+
+        } catch (NumberFormatException e) {
+            Alert alert = new Alert(Alert.AlertType.WARNING, "Datos de entrada incorrecto!", ButtonType.OK);
             alert.show();
         } catch (Exception e) {
             Alert alert = new Alert(Alert.AlertType.WARNING, e.getMessage(), ButtonType.OK);

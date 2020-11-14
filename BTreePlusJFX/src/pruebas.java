@@ -67,5 +67,7 @@ public class pruebas {
             prueba1.print();
         }*/
 
+        prueba1.findElement(25);
+
     }
 }
