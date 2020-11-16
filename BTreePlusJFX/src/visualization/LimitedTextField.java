@@ -1,7 +1,10 @@
-import java.util.Objects;
+package visualization;
+
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.scene.control.TextField;
+
+import java.util.Objects;
 
 public class LimitedTextField extends TextField {
 
@@ -30,8 +33,7 @@ public class LimitedTextField extends TextField {
         if (this.getMaxLength() <= 0) {
             // Default behavior, in case of no max length
             super.replaceText(start, end, insertedText);
-        }
-        else {
+        } else {
             // Get the text in the textfield, before the user enters something
             String currentText = this.getText() == null ? "" : this.getText();
 
@@ -43,8 +45,7 @@ public class LimitedTextField extends TextField {
             if (numberOfexceedingCharacters <= 0) {
                 // Normal behavior
                 super.replaceText(start, end, insertedText);
-            }
-            else {
+            } else {
                 // Otherwise, cut the the text that was going to be inserted
                 String cutInsertedText = insertedText.substring(
                         0,

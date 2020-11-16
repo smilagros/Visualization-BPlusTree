@@ -1,3 +1,5 @@
+package application;
+
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -16,6 +18,9 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import tree.BPlusTree;
+import visualization.BTreePane;
+import visualization.LimitedTextField;
 
 import java.awt.*;
 import java.util.LinkedList;
@@ -161,7 +166,7 @@ public class Main extends Application {
 
         // Create a scene
         Scene scene = new Scene(root, windowWidth, windowHeight);
-        scene.getStylesheets().add(getClass().getResource("BtreeStyle.css").toExternalForm());
+        scene.getStylesheets().add(getClass().getResource("/tree/BtreeStyle.css").toExternalForm());
         primaryStage.setTitle("Visualizador B+ Tree");
         primaryStage.setScene(scene);
         primaryStage.show();

@@ -1,3 +1,7 @@
+package tree;
+
+import visualization.CloneUtils;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -76,6 +80,7 @@ public class BPlusTree implements Serializable {
     public Node getRoot() {
         return this.root;
     }
+
     /**
      * @return order
      */
@@ -161,7 +166,7 @@ public class BPlusTree implements Serializable {
         node.keys[index] = value;
         node.numKeys++;
 
-        //this.stepsTree.add(CloneUtils.clone(this));
+        //this.stepsTree.add(visualization.CloneUtils.clone(this));
 
     }
 
@@ -247,7 +252,7 @@ public class BPlusTree implements Serializable {
             currentParent.children[index] = leftNode;
             rightNode.parent = currentParent;
             leftNode.parent = currentParent;
-            //this.stepsTree.add(CloneUtils.clone(this));
+            //this.stepsTree.add(visualization.CloneUtils.clone(this));
 
             return node.parent;
 
@@ -262,7 +267,7 @@ public class BPlusTree implements Serializable {
             rightNode.parent = this.root;
             this.root.isLeaf = false;
 
-            // this.stepsTree.add(CloneUtils.clone(this));
+            // this.stepsTree.add(visualization.CloneUtils.clone(this));
             return this.root;
         }
     }
@@ -615,7 +620,7 @@ public class BPlusTree implements Serializable {
 
     public Node getNode(double key) {
         Node currentNode = root;
-        while (currentNode!=null) {
+        while (currentNode != null) {
             int i = 0;
             while (i < currentNode.numKeys) {
                 if (currentNode.keys[i].equals(key)) {

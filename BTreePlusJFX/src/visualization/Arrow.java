@@ -1,3 +1,5 @@
+package visualization;
+
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.collections.ListChangeListener;
@@ -19,7 +21,7 @@ public class Arrow extends Group {
     private final double ARROWHEAD_ANGLE = Math.toRadians(20);
     private final double ARROWHEAD_LENGTH = 10;
 
-    public Arrow(double x1, double y1, double x2, double y2){
+    public Arrow(double x1, double y1, double x2, double y2) {
         this.x1.set(x1);
         this.y1.set(y1);
         this.x2.set(x2);
@@ -27,8 +29,8 @@ public class Arrow extends Group {
 
         getChildren().addAll(mainLine, headA, headB);
 
-        for(SimpleDoubleProperty s : new SimpleDoubleProperty[]{this.x1,this.y1,this.x2,this.y2}){
-            s.addListener( (l,o,n) -> update() );
+        for (SimpleDoubleProperty s : new SimpleDoubleProperty[]{this.x1, this.y1, this.x2, this.y2}) {
+            s.addListener((l, o, n) -> update());
         }
 
         setUpStyleClassStructure();
@@ -47,9 +49,9 @@ public class Arrow extends Group {
         headA.getStyleClass().add("arrowhead");
         headB.getStyleClass().add("arrowhead");
 
-        getStyleClass().addListener( (ListChangeListener<? super String>) c -> {
+        getStyleClass().addListener((ListChangeListener<? super String>) c -> {
             c.next();
-            for(Polyline p : new Polyline[]{mainLine, headA, headB}){
+            for (Polyline p : new Polyline[]{mainLine, headA, headB}) {
                 p.getStyleClass().addAll(c.getAddedSubList());
                 p.getStyleClass().removeAll(c.getRemoved());
             }
@@ -65,28 +67,28 @@ public class Arrow extends Group {
         double x2 = end[0];
         double y2 = end[1];
 
-        mainLine.getPoints().setAll(x1,y1,x2,y2);
+        mainLine.getPoints().setAll(x1, y1, x2, y2);
 
-        double theta = Math.atan2(y2-y1, x2-x1);
+        double theta = Math.atan2(y2 - y1, x2 - x1);
 
         //arrowhead 1
         double x = x1 + Math.cos(theta + ARROWHEAD_ANGLE) * ARROWHEAD_LENGTH;
         double y = y1 + Math.sin(theta + ARROWHEAD_ANGLE) * ARROWHEAD_LENGTH;
-        headA.getPoints().setAll(x,y,x1,y1);
+        headA.getPoints().setAll(x, y, x1, y1);
         x = x1 + Math.cos(theta - ARROWHEAD_ANGLE) * ARROWHEAD_LENGTH;
         y = y1 + Math.sin(theta - ARROWHEAD_ANGLE) * ARROWHEAD_LENGTH;
-        headA.getPoints().addAll(x,y);
+        headA.getPoints().addAll(x, y);
         //arrowhead 2
         x = x2 - Math.cos(theta + ARROWHEAD_ANGLE) * ARROWHEAD_LENGTH;
         y = y2 - Math.sin(theta + ARROWHEAD_ANGLE) * ARROWHEAD_LENGTH;
-        headB.getPoints().setAll(x,y,x2,y2);
+        headB.getPoints().setAll(x, y, x2, y2);
         x = x2 - Math.cos(theta - ARROWHEAD_ANGLE) * ARROWHEAD_LENGTH;
         y = y2 - Math.sin(theta - ARROWHEAD_ANGLE) * ARROWHEAD_LENGTH;
-        headB.getPoints().addAll(x,y);
+        headB.getPoints().addAll(x, y);
     }
 
-    private double[] scale(double x1, double y1, double x2, double y2){
-        double theta = Math.atan2(y2-y1, x2-x1);
+    private double[] scale(double x1, double y1, double x2, double y2) {
+        double theta = Math.atan2(y2 - y1, x2 - x1);
         return new double[]{
                 x1 + Math.cos(theta) * ARROW_SCALER,
                 y1 + Math.sin(theta) * ARROW_SCALER

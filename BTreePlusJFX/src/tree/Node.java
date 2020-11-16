@@ -1,7 +1,9 @@
+package tree;
+
 import java.io.Serializable;
 
 /**
- * The Class Node.
+ * The Class tree.Node.
  */
 public class Node implements Serializable {
 
@@ -35,7 +37,7 @@ public class Node implements Serializable {
 
     public double y;
 
-    public double [] widths;
+    public double[] widths;
 
     public double width;
 
@@ -65,6 +67,7 @@ public class Node implements Serializable {
             return false;
         }
     }
+
     public void setLeaf(boolean value) {
         this.isLeaf = value;
     }

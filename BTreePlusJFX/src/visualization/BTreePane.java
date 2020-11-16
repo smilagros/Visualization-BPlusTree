@@ -1,3 +1,5 @@
+package visualization;
+
 import javafx.animation.FillTransition;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -7,6 +9,8 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
+import tree.BPlusTree;
+import tree.Node;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +33,7 @@ public class BTreePane extends Pane {
     }
 
     /*
-     * Draw Tree & Node
+     * Draw Tree & tree.Node
      */
     public void updatePane(BPlusTree bTree, double x) {
         this.getChildren().clear();
