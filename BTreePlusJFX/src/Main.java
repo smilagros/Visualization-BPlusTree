@@ -7,34 +7,32 @@ import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
-import javafx.scene.control.*;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Region;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 import java.awt.*;
 import java.util.LinkedList;
 
 public class Main extends Application {
-
+    private static final int LIMIT = 4;
     private double key;
     private int order = 3;
     private double key1;
     private double key2;
 
     private BTreePane btPane;
-    private TextField keyText = new TextField();
-    private TextField orderText = new TextField();
+    private LimitedTextField keyText = new LimitedTextField();
+    private LimitedTextField orderText = new LimitedTextField();
 
-    private TextField numberOne = new TextField();
-    private TextField numberTwo = new TextField();
+    private LimitedTextField numberOne = new LimitedTextField();
+    private LimitedTextField numberTwo = new LimitedTextField();
 
 
     private LinkedList<BPlusTree> bTreeLinkedList = new LinkedList<BPlusTree>();
@@ -47,14 +45,12 @@ public class Main extends Application {
     public double windowHeight = screenSize.getHeight() * .75;
 
     private Canvas canvas;
-    private GraphicsContext g;
 
 
     @Override
     public void start(Stage primaryStage) {
 
         canvas = new Canvas(windowWidth, windowHeight);
-        g = canvas.getGraphicsContext2D();
         BorderPane borderPane = new BorderPane();
 
         // Bind the width/height property to the wrapper Pane
@@ -66,14 +62,24 @@ public class Main extends Application {
 
         // Create button HBox on top
         HBox hBox = new HBox(15);
+        hBox.setBorder(new Border(new BorderStroke(Color.valueOf("#DDEEDD"),
+                BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+        hBox.setBackground(new Background(new BackgroundFill(Color.valueOf("#DDEEDD"), CornerRadii.EMPTY, Insets.EMPTY)));
+        hBox.setPadding(new Insets(20, 10, 20, 10));
+
         borderPane.setTop(hBox);
-        BorderPane.setMargin(hBox, new Insets(10, 10, 10, 10));
+
         // Create button HBox on top
         HBox hBoxBottom = new HBox(15);
+        hBoxBottom.setBorder(new Border(new BorderStroke(Color.valueOf("#DDEEDD"),
+                BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+        hBoxBottom.setBackground(new Background(new BackgroundFill(Color.valueOf("#DDEEDD"), CornerRadii.EMPTY, Insets.EMPTY)));
+        hBoxBottom.setPadding(new Insets(10, 10, 10, 10));
         borderPane.setBottom(hBoxBottom);
-        BorderPane.setMargin(hBoxBottom, new Insets(10, 10, 10, 10));
+
         // TextField
         keyText.setPrefWidth(60);
+        keyText.setMaxLength(4);
         keyText.setAlignment(Pos.BASELINE_RIGHT);
         // OrderField
         orderText.setPrefWidth(60);
@@ -81,8 +87,13 @@ public class Main extends Application {
         // Between search
         numberOne.setPrefWidth(60);
         numberOne.setAlignment(Pos.BOTTOM_CENTER);
+        numberOne.setMaxLength(4);
+
         numberTwo.setPrefWidth(60);
         numberTwo.setAlignment(Pos.BOTTOM_CENTER);
+        numberTwo.setMaxLength(4);
+
+
         // Button
         Button insertButton = new Button("Insertar");
         Button deleteButton = new Button("Eliminar");
@@ -100,19 +111,23 @@ public class Main extends Application {
         hBox.setAlignment(Pos.CENTER);
         hBoxBottom.getChildren().addAll(new Label("Order: "), orderText, nullLabel);
         hBoxBottom.setAlignment(Pos.CENTER);
+
         //Set Order
         orderText.setText("3");
+        orderText.setMaxLength(1);
+
         bTree.initialize(order);
 
         orderText.setOnKeyPressed(new EventHandler<KeyEvent>() {
             public void handle(KeyEvent ke) {
+                reset();
                 if (!(ke.getText().equalsIgnoreCase(""))) {
                     order = Integer.parseInt(ke.getText());
                     bTree.initialize(order);
-                } else {
+                }/*else {
                     //orderText.setText("3");
                     bTree.initialize(3);
-                }
+                }*/
                 // System.out.println("Key Pressed: " + ke.getText());
 
             }
@@ -128,13 +143,14 @@ public class Main extends Application {
             }
         });
         // Create TreePane in center
-        btPane = new BTreePane(windowWidth / 2, 50, bTree);
+        btPane = new BTreePane(windowWidth / 2, 50);
         btPane.setPrefSize(windowHeight, windowWidth);
         borderPane.setCenter(btPane);
 
-
         BorderPane root = new BorderPane(borderPane);
-        root.setPadding(new Insets(10));
+        root.setBorder(new Border(new BorderStroke(Color.GREEN,
+                BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+        root.setPadding(new Insets(0));
         //Buttons events
         insertButton.setOnMouseClicked(e -> insertValue());
         deleteButton.setOnMouseClicked(e -> deleteValue());
@@ -248,9 +264,11 @@ public class Main extends Application {
 
     private void reset() {
         keyText.setText("");
-        orderText.setText("3");
+        //orderText.setText("3");
         bTree.setRoot(null);
         bTreeLinkedList.clear();
         btPane.updatePane(bTree);
     }
+
+
 }

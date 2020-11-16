@@ -17,16 +17,15 @@ public class BTreePane extends Pane {
 
     // TODO: make node size relate to pane's size
     private final int fontSize = 14;
-    private final int rectangleWidth = 36;
+    private final int rectangleWidth = 42;
     private final int rowSpace = 60;
     private final int WIDTH_PER_ELEM = 40;
     private final int NODE_SPACING = 30;
     private final int HEIGHT_DELTA = 50;
 
-    public BTreePane(double x, double y, BPlusTree bTree) {
+    public BTreePane(double x, double y) {
         this.originalX = x;
         this.originalY = y;
-
     }
 
     /*
@@ -44,15 +43,22 @@ public class BTreePane extends Pane {
     }
 
     private void DrawNode(String s, double x, double y, Color color) {
+
         Rectangle rect = new Rectangle(x, y, rectangleWidth, rectangleWidth);
+        String label = normalizeNumber(s, 4);
         rect.setFill(color);
         rect.setStroke(Color.DARKGREEN);
         rect.setArcHeight(10);
         rect.setArcWidth(12);
-        Text txt = new Text(x + 11 - s.length(), y + 20, s);
-        txt.setFill(Color.BLACK);
+        Text txt = new Text(x + 10 - label.length(), y + 20, label);
+        txt.setFill(Color.DARKGREEN);
         txt.setFont(Font.font("Arial", FontWeight.MEDIUM, fontSize));
         this.getChildren().addAll(rect, txt);
+    }
+
+    String normalizeNumber(String input, int maxLen) {
+        String s = "OOO0000" + input;
+        return s.substring(s.length() - maxLen);
     }
 
     private void DrawBTree(Node node, double x, double y) {
@@ -61,7 +67,9 @@ public class BTreePane extends Pane {
             this.setNewPositions(node, x, y);
             // Draw keys of node
             for (int i = 0; i < node.numKeys; i++) {
-                String label = String.valueOf(node.keys[i]);
+                double number = node.keys[i];
+                long iPart = (long) number;
+                String label = String.valueOf(iPart);
                 DrawNode(label, node.x + i * rectangleWidth, node.y, Color.web("#DDEEDD"));
             }
 
@@ -70,6 +78,7 @@ public class BTreePane extends Pane {
             int numChildren = node.numKeys + 1;
             if (node.getChildren()[0] != null) {
                 for (int i = 0; i < numChildren; i++) {
+
 
                     double startX = node.x + i * rectangleWidth;
                     double startX2 = 0, endX = 0;
@@ -158,16 +167,23 @@ public class BTreePane extends Pane {
             while (curr.getChildren().length != 0) {
                 int index = binarySearchWithinInternalNode(key, curr.keys, curr.numKeys);
                 for (int i = 0; i < index; i++) {
+                    double number = curr.getKey(i);
+                    long iPart = (long) number;
+                    String label = String.valueOf(iPart);
+
                     if (curr.getKey(i).equals(key) && curr.isLeaf) {
-                        makeNodeAnimation(curr.getKey(i).toString(), curr.x + i * rectangleWidth, curr.y, delay);
+                        makeNodeAnimation(label, curr.x + i * rectangleWidth, curr.y, delay);
                         return;
                     } else {
-                        makeNodeAnimation(curr.getKey(i).toString(), curr.x + i * rectangleWidth, curr.y, delay);
+                        makeNodeAnimation(label, curr.x + i * rectangleWidth, curr.y, delay);
                         delay += 0.5;
                     }
                 }
                 if (index == 0) {
-                    makeNodeAnimation(curr.getKey(0).toString(), curr.x + 0 * rectangleWidth, curr.y, delay);
+                    double number = curr.getKey(0);
+                    long iPart = (long) number;
+                    String label = String.valueOf(iPart);
+                    makeNodeAnimation(label, curr.x + 0 * rectangleWidth, curr.y, delay);
                     delay += 0.5;
                 }
                 System.out.println("index" + index);
@@ -199,7 +215,10 @@ public class BTreePane extends Pane {
             while (null != currNode && !endSearch) {
                 for (int i = 0; i < currNode.numKeys; i++) {
                     Double key = currNode.getKeys()[i];
-                    makeNodeAnimation(currNode.getKey(i).toString(), currNode.x + i * rectangleWidth, currNode.y, delay);
+                    double number = currNode.getKey(i);
+                    long iPart = (long) number;
+                    String label = String.valueOf(iPart);
+                    makeNodeAnimation(label, currNode.x + i * rectangleWidth, currNode.y, delay);
 
                     if (key >= key1 && key <= key2)
                         searchKeys.add(currNode.getKeys()[i]);
@@ -227,11 +246,13 @@ public class BTreePane extends Pane {
     private void makeNodeAnimation(String s, double x, double y, double delay) {
         // Draw a node
         Rectangle rect = new Rectangle(x, y, rectangleWidth, rectangleWidth);
+        String label = normalizeNumber(s, 4);
+
         rect.setFill(Color.web("#DDEEDD"));
         rect.setStroke(Color.WHITESMOKE);
         rect.setArcHeight(10);
         rect.setArcWidth(10);
-        Text txt = new Text(x + 11 - s.length(), y + 20, s);
+        Text txt = new Text(x + 10 - label.length(), y + 20, label);
         txt.setFill(Color.WHITE);
         txt.setFont(Font.font("Arial", FontWeight.EXTRA_BOLD, fontSize));
         this.getChildren().addAll(rect, txt);
