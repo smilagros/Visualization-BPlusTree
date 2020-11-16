@@ -1,5 +1,4 @@
 import javafx.animation.FillTransition;
-import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
@@ -24,15 +23,21 @@ public class BTreePane extends Pane {
     private final int NODE_SPACING = 30;
     private final int HEIGHT_DELTA = 50;
 
-
     public BTreePane(double x, double y, BPlusTree bTree) {
         this.originalX = x;
         this.originalY = y;
+
     }
 
     /*
      * Draw Tree & Node
      */
+    public void updatePane(BPlusTree bTree, double x) {
+        this.getChildren().clear();
+        this.originalX = x / 2;
+        DrawBTree(bTree.getRoot(), originalX, originalY);
+    }
+
     public void updatePane(BPlusTree bTree) {
         this.getChildren().clear();
         DrawBTree(bTree.getRoot(), originalX, originalY);
@@ -91,9 +96,9 @@ public class BTreePane extends Pane {
                         System.out.println("Ingresa a hoja  " + i);
 
                         Node next = node.children[i].next;
-                        if(next != null){
+                        if (next != null) {
 
-                            Arrow arrow = new Arrow(node.children[i].x, node.children[i].y +rectangleWidth/2, next.x, next.y+rectangleWidth/2);
+                            Arrow arrow = new Arrow(node.children[i].x, node.children[i].y + rectangleWidth / 2, next.x, next.y + rectangleWidth / 2);
                             this.getChildren().add(arrow);
                         }
                     }
@@ -206,8 +211,6 @@ public class BTreePane extends Pane {
                 }
                 currNode = currNode.getNext();
             }
-
-
 
 
             throw new Exception("Not in the tree!");
