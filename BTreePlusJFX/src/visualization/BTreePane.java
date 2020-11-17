@@ -1,8 +1,10 @@
 package visualization;
 
 import javafx.animation.FillTransition;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Box;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
@@ -106,7 +108,7 @@ public class BTreePane extends Pane {
                     }
 
                     if (node.children[i].isLeaf) {
-                        System.out.println("Ingresa a hoja  " + i);
+                        //System.out.println("Ingresa a hoja  " + i);
 
                         Node next = node.children[i].next;
                         if (next != null) {
@@ -250,14 +252,12 @@ public class BTreePane extends Pane {
     private void makeNodeAnimation(String s, double x, double y, double delay) {
         // Draw a node
         Rectangle rect = new Rectangle(x, y, rectangleWidth, rectangleWidth);
+        Box box = new Box(100, 100, 100);
         String label = normalizeNumber(s, 4);
-
-        rect.setFill(Color.web("#DDEEDD"));
-        rect.setStroke(Color.WHITESMOKE);
+        rect.setFill(Color.web("#f57f7f"));
         rect.setArcHeight(10);
         rect.setArcWidth(10);
         Text txt = new Text(x + 10 - label.length(), y + 20, label);
-        txt.setFill(Color.WHITE);
         txt.setFont(Font.font("Arial", FontWeight.EXTRA_BOLD, fontSize));
         this.getChildren().addAll(rect, txt);
 
@@ -268,8 +268,15 @@ public class BTreePane extends Pane {
         fill.setCycleCount(1);
         fill.setDelay(Duration.seconds(delay));
         fill.setDuration(Duration.seconds(1));
-        fill.setFromValue(Color.web("#DDEEDD"));
-        fill.setToValue(Color.web("#f57f7f"));
+        rect.setStroke(Color.ORANGE);
+        rect.setStrokeWidth(2);
+        DropShadow e = new DropShadow();
+        e.setWidth(10);
+        e.setHeight(10);
+        e.setColor(Color.YELLOW);
+        rect.setEffect(e);
+        fill.setToValue(Color.TRANSPARENT);
+        txt.setFill(Color.DARKGREEN);
         fill.setShape(rect);
         fill.play();
     }
