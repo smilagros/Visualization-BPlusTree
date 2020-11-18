@@ -196,7 +196,7 @@ public class BTreePane extends Pane {
                     makeNodeAnimation(label, curr.x + 0 * rectangleWidth, curr.y, delay);
                     delay += 0.5;
                 }
-                System.out.println("index" + index);
+                //System.out.println("index" + index);
                 curr = curr.children[binarySearchWithinInternalNode(key, curr.keys, curr.numKeys)];
             }
 
@@ -279,7 +279,7 @@ public class BTreePane extends Pane {
                     makeNodeAnimation3(label, curr.x + 0 * rectangleWidth, curr.y, delay);
                     delay += 0.5;
                 }
-                System.out.println("index" + index);
+                //System.out.println("index" + index);
                 curr = curr.children[binarySearchWithinInternalNode(key, curr.keys, curr.numKeys)];
             }
 

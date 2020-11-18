@@ -1,5 +1,3 @@
-package application;
-
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -36,7 +34,7 @@ public class Main extends Application {
 
 
     private LimitedTextField keyText = new LimitedTextField();
-    private LimitedTextField orderText = new LimitedTextField();
+    //private LimitedTextField orderText = new LimitedTextField();
 
     private LimitedTextField numberOne = new LimitedTextField();
     private LimitedTextField numberTwo = new LimitedTextField();
@@ -91,8 +89,8 @@ public class Main extends Application {
         keyText.setMaxLength(4);
         keyText.setAlignment(Pos.BASELINE_RIGHT);
         // OrderField
-        orderText.setPrefWidth(60);
-        orderText.setAlignment(Pos.BOTTOM_CENTER);
+        //orderText.setPrefWidth(60);
+        //orderText.setAlignment(Pos.BOTTOM_CENTER);
         // Between search
         numberOne.setPrefWidth(60);
         numberOne.setAlignment(Pos.BOTTOM_CENTER);
@@ -201,13 +199,11 @@ public class Main extends Application {
         try {
             key = Double.parseDouble(keyText.getText());
             keyText.setText("");
-            bTree.setStepsTree(new LinkedList<BPlusTree>());
-
+            //bTree.setStepsTree(new LinkedList<BPlusTree>());
             bTree.insertElement(key);
-            bTreeLinkedList = bTree.getStepsTree();
-            int size = bTreeLinkedList.size();
-
-            btPane.updatePane(bTreeLinkedList.get(size - 1), this.windowWidth);
+            //bTreeLinkedList = bTree.getStepsTree();
+            //int size = bTreeLinkedList.size();
+            btPane.updatePane(bTree, this.windowWidth);
             btPane.searchPathColoring3(bTree, key);
         } catch (NumberFormatException e) {
             Alert alert = new Alert(Alert.AlertType.WARNING, "Dato de entrada incorrecto!", ButtonType.OK);
@@ -219,9 +215,9 @@ public class Main extends Application {
 
     private void insertValues() {
         try {
-            generate = Integer.parseInt(generateText.getText());
+            generate = Double.parseDouble(generateText.getText());
             generateText.setText("");
-            bTree.setStepsTree(new LinkedList<BPlusTree>());
+            //bTree.setStepsTree(new LinkedList<BPlusTree>());
             reset();/**/
             for (int i = 0; i < generate; i++) {
                 // bTree.insertElement((int) (Math.random() * i) + 1);
@@ -229,10 +225,10 @@ public class Main extends Application {
 
             }
 
-            bTreeLinkedList = bTree.getStepsTree();
-            int size = bTreeLinkedList.size();
+            //bTreeLinkedList = bTree.getStepsTree();
+            //int size = bTreeLinkedList.size();
 
-            btPane.updatePane(bTreeLinkedList.get(size - 1), this.windowWidth);
+            btPane.updatePane(bTree, this.windowWidth);
             //System.out.println(" this.windowWidth"+ this.windowWidth);
         } catch (NumberFormatException e) {
             Alert alert = new Alert(Alert.AlertType.WARNING, "Dato de entrada incorrecto!", ButtonType.OK);
@@ -249,11 +245,11 @@ public class Main extends Application {
             if (bTree.getNode(key) == null) {
                 throw new Exception("Not in the tree!");
             }
-            bTree.setStepsTree(new LinkedList<BPlusTree>());
+            //bTree.setStepsTree(new LinkedList<BPlusTree>());
             bTree.deleteElement(key);
-            bTreeLinkedList = bTree.getStepsTree();
-            int size = bTreeLinkedList.size();
-            btPane.updatePane(bTreeLinkedList.get(size - 1), this.windowWidth);
+            //bTreeLinkedList = bTree.getStepsTree();
+            //int size = bTreeLinkedList.size();
+            btPane.updatePane(bTree, this.windowWidth);
         } catch (NumberFormatException e) {
             Alert alert = new Alert(Alert.AlertType.WARNING, "Dato de entrada incorrecto!", ButtonType.OK);
             alert.show();
