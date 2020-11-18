@@ -4,7 +4,6 @@ import javafx.animation.FillTransition;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Box;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
@@ -26,7 +25,7 @@ public class BTreePane extends Pane {
     private final int rectangleWidth = 42;
     private final int rowSpace = 60;
     private final int WIDTH_PER_ELEM = 40;
-    private final int NODE_SPACING = 30;
+    private final int NODE_SPACING = 40;
     private final int HEIGHT_DELTA = 50;
 
     public BTreePane(double x, double y) {
@@ -37,10 +36,11 @@ public class BTreePane extends Pane {
     /*
      * Draw Tree & tree.Node
      */
-    public void updatePane(BPlusTree bTree, double x) {
+    public void updatePane(BPlusTree bTree, double x){
         this.getChildren().clear();
         this.originalX = x / 2;
         DrawBTree(bTree.getRoot(), originalX, originalY);
+
     }
 
     public void updatePane(BPlusTree bTree) {
@@ -69,7 +69,11 @@ public class BTreePane extends Pane {
 
     private void DrawBTree(Node node, double x, double y) {
         if (node != null) {
-            this.resizeWidths(node);
+            double result = resizeWidths(node);
+
+            if (result > x * 2) {
+                x = result / 2;
+            }
             this.setNewPositions(node, x, y);
             // Draw keys of node
             for (int i = 0; i < node.numKeys; i++) {
@@ -244,6 +248,44 @@ public class BTreePane extends Pane {
 
     }
 
+
+
+    public void searchPathColoring3(BPlusTree bTree, double key){
+        updatePane(bTree);
+        Node curr = bTree.getRoot();
+        if (curr != null) {
+            double delay = 0;
+            // Traverse to the corresponding external node that would 'should'
+            // contain this key
+            while (curr.getChildren().length != 0) {
+                int index = binarySearchWithinInternalNode(key, curr.keys, curr.numKeys);
+                for (int i = 0; i < index; i++) {
+                    double number = curr.getKey(i);
+                    long iPart = (long) number;
+                    String label = String.valueOf(iPart);
+
+                    if (curr.getKey(i).equals(key) && curr.isLeaf) {
+                        makeNodeAnimation3(label, curr.x + i * rectangleWidth, curr.y, delay);
+                        return;
+                    } else {
+                        makeNodeAnimation3(label, curr.x + i * rectangleWidth, curr.y, delay);
+                        delay += 0.5;
+                    }
+                }
+                if (index == 0) {
+                    double number = curr.getKey(0);
+                    long iPart = (long) number;
+                    String label = String.valueOf(iPart);
+                    makeNodeAnimation3(label, curr.x + 0 * rectangleWidth, curr.y, delay);
+                    delay += 0.5;
+                }
+                System.out.println("index" + index);
+                curr = curr.children[binarySearchWithinInternalNode(key, curr.keys, curr.numKeys)];
+            }
+
+        }
+    }
+
     /*
      * Draw Animation
      */
@@ -252,7 +294,6 @@ public class BTreePane extends Pane {
     private void makeNodeAnimation(String s, double x, double y, double delay) {
         // Draw a node
         Rectangle rect = new Rectangle(x, y, rectangleWidth, rectangleWidth);
-        Box box = new Box(100, 100, 100);
         String label = normalizeNumber(s, 4);
         rect.setFill(Color.web("#f57f7f"));
         rect.setArcHeight(10);
@@ -281,6 +322,32 @@ public class BTreePane extends Pane {
         fill.play();
     }
 
+    private void makeNodeAnimation3(String s, double x, double y, double delay) {
+        // Draw a node
+        Rectangle rect = new Rectangle(x, y, rectangleWidth, rectangleWidth);
+        String label = normalizeNumber(s, 4);
+        rect.setFill(Color.valueOf("#f57f7f"));
+        rect.setArcHeight(10);
+        rect.setStroke(Color.DARKGREEN);
+        rect.setArcWidth(10);
+        Text txt = new Text(x + 10 - label.length(), y + 20, label);
+        txt.setFill(Color.WHITE);
+        txt.setFont(Font.font("Arial", FontWeight.NORMAL, fontSize));
+        this.getChildren().addAll(rect, txt);
+
+        // make fill transition
+        FillTransition fill = new FillTransition();
+
+        fill.setAutoReverse(false);
+        fill.setCycleCount(1);
+        fill.setDelay(Duration.seconds(delay));
+        fill.setDuration(Duration.seconds(1));
+
+        fill.setToValue(Color.valueOf("#DDEEDD"));
+        txt.setFill(Color.DARKGREEN);
+        fill.setShape(rect);
+        fill.play();
+    }
 
     public int binarySearchWithinInternalNode(double key, Double[] keyList, int length) {
         int st = 0;

@@ -3,6 +3,8 @@ package application;
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -13,8 +15,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.*;
-import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
@@ -26,13 +26,15 @@ import java.awt.*;
 import java.util.LinkedList;
 
 public class Main extends Application {
-    private static final int LIMIT = 4;
     private double key;
     private int order = 3;
+
     private double key1;
     private double key2;
     private double generate;
     private BTreePane btPane;
+
+
     private LimitedTextField keyText = new LimitedTextField();
     private LimitedTextField orderText = new LimitedTextField();
 
@@ -55,7 +57,7 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-
+        bTree.initialize(order);
         canvas = new Canvas(windowWidth, windowHeight);
         BorderPane borderPane = new BorderPane();
         borderPane.setBorder(new Border(new BorderStroke(Color.GREEN,
@@ -119,46 +121,31 @@ public class Main extends Application {
         hBox.getChildren().addAll(new Label("Ingresa un número: "), keyText, insertButton, deleteButton, searchButton,
                 new Label("Ingresa el rango de números a buscar: "), numberOne, numberTwo, searchBetweenButton, resetButton, nullLabel);
         hBox.setAlignment(Pos.CENTER);
-        hBoxBottom.getChildren().addAll(new Label("Order: "), orderText, generateText, generarButton, nullLabel);
+
+        String orderList[] = {"3", "4", "5", "6", "7"};
+        // Create a combo box
+        ComboBox comboBox = new ComboBox(FXCollections.observableArrayList(orderList));
+        //Select default value
+        comboBox.getSelectionModel().selectFirst();
+        // Create action event
+        EventHandler<ActionEvent> event =
+                new EventHandler<ActionEvent>() {
+                    public void handle(ActionEvent e) {
+                        reset();
+                        order = Integer.parseInt((String) comboBox.getValue());
+                        bTree.initialize(order);
+                    }
+                };
+
+        // Set on action
+        comboBox.setOnAction(event);
+
+        hBoxBottom.getChildren().addAll(new Label("Order: "), comboBox, generateText, generarButton, nullLabel);
         hBoxBottom.setAlignment(Pos.BOTTOM_RIGHT);
-
-        //Set Order
-        orderText.setText("3");
-        orderText.setMaxLength(1);
-
-        bTree.initialize(order);
-
-        orderText.setOnKeyPressed(new EventHandler<KeyEvent>() {
-            public void handle(KeyEvent ke) {
-                reset();
-                if (!(ke.getText().equalsIgnoreCase(""))) {
-                    order = Integer.parseInt(ke.getText());
-                    bTree.initialize(order);
-                }/*else {
-                    //orderText.setText("3");
-                    bTree.initialize(3);
-                }*/
-                // System.out.println("Key Pressed: " + ke.getText());
-
-            }
-        });
-
-        keyText.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            public void handle(MouseEvent ke) {
-                //System.out.println("Key Pressed: " + orderText.getText());
-                if (orderText.getText().equalsIgnoreCase("")) {
-                    orderText.setText("3");
-                    //bTree.initialize(3);
-                }
-            }
-        });
-
 
         // Create TreePane in center
 
         btPane = new BTreePane(windowWidth / 2, 50);
-
-
         sp.setVmax(440);
         sp.setPrefSize(115, 150);
         sp.setContent(btPane);
@@ -183,7 +170,7 @@ public class Main extends Application {
 
         // Create a scene
         Scene scene = new Scene(borderPane, windowWidth, windowHeight);
-        scene.getStylesheets().add(getClass().getResource("/tree/BtreeStyle.css").toExternalForm());
+        scene.getStylesheets().add(getClass().getResource("/visualization/BtreeStyle.css").toExternalForm());
         primaryStage.setTitle("Visualizador B+ Tree");
         primaryStage.setScene(scene);
         primaryStage.show();
@@ -215,14 +202,18 @@ public class Main extends Application {
             key = Double.parseDouble(keyText.getText());
             keyText.setText("");
             bTree.setStepsTree(new LinkedList<BPlusTree>());
+
             bTree.insertElement(key);
             bTreeLinkedList = bTree.getStepsTree();
             int size = bTreeLinkedList.size();
 
             btPane.updatePane(bTreeLinkedList.get(size - 1), this.windowWidth);
+            btPane.searchPathColoring3(bTree, key);
         } catch (NumberFormatException e) {
             Alert alert = new Alert(Alert.AlertType.WARNING, "Dato de entrada incorrecto!", ButtonType.OK);
             alert.show();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -246,6 +237,8 @@ public class Main extends Application {
         } catch (NumberFormatException e) {
             Alert alert = new Alert(Alert.AlertType.WARNING, "Dato de entrada incorrecto!", ButtonType.OK);
             alert.show();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -257,9 +250,7 @@ public class Main extends Application {
                 throw new Exception("Not in the tree!");
             }
             bTree.setStepsTree(new LinkedList<BPlusTree>());
-
             bTree.deleteElement(key);
-
             bTreeLinkedList = bTree.getStepsTree();
             int size = bTreeLinkedList.size();
             btPane.updatePane(bTreeLinkedList.get(size - 1), this.windowWidth);
@@ -296,7 +287,7 @@ public class Main extends Application {
             btPane.searchPathColoring2(bTree, key1, key2);
 
         } catch (NumberFormatException e) {
-            Alert alert = new Alert(Alert.AlertType.WARNING, "Datos de entrada incorrecto!", ButtonType.OK);
+            Alert alert = new Alert(Alert.AlertType.WARNING, "Datos de entrada incorrectos!", ButtonType.OK);
             alert.show();
         } catch (Exception e) {
             Alert alert = new Alert(Alert.AlertType.WARNING, e.getMessage(), ButtonType.OK);
@@ -310,6 +301,7 @@ public class Main extends Application {
         //orderText.setText("3");
         bTree.setRoot(null);
         bTreeLinkedList.clear();
+        resize(canvas);
         btPane.updatePane(bTree);
     }
 
