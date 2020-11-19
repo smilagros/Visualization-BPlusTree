@@ -1,10 +1,7 @@
 package tree;
 
-import visualization.CloneUtils;
-
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 public class BPlusTree implements Serializable {
@@ -35,9 +32,6 @@ public class BPlusTree implements Serializable {
      * The root of the B Plus node.
      */
     public int maxDegree;
-
-
-    private LinkedList<BPlusTree> stepsTree = new LinkedList<BPlusTree>();
 
     /**
      * Instantiates a new b plus node.
@@ -89,14 +83,6 @@ public class BPlusTree implements Serializable {
     }
 
 
-    public LinkedList<BPlusTree> getStepsTree() {
-        return stepsTree;
-    }
-
-    public void setStepsTree(LinkedList<BPlusTree> stepsTree) {
-        this.stepsTree = stepsTree;
-    }
-
     /**
      * @param node , the node
      * @return the height of the node position
@@ -117,9 +103,6 @@ public class BPlusTree implements Serializable {
 
         return height;
 
-
-        // Start
-
     }
 
     /**
@@ -132,16 +115,17 @@ public class BPlusTree implements Serializable {
             this.root = new Node();
             this.root.keys[0] = value;
             this.root.numKeys++;
-            this.stepsTree.add(CloneUtils.clone(this));
 
         } else {
             this.insert(this.root, value);
-            this.stepsTree.clear();
-            this.stepsTree.add(CloneUtils.clone(this));
         }
     }
 
 
+    /**
+     * @param node
+     * @param value
+     */
     public void insert(Node node, double value) {
 
         if (node.isLeaf) {
@@ -157,6 +141,10 @@ public class BPlusTree implements Serializable {
     }
 
 
+    /**
+     * @param node
+     * @param value
+     */
     public void insertInto(Node node, double value) {
         int index = node.numKeys;
         while (index > 0 && node.keys[index - 1] > value) {
@@ -166,11 +154,13 @@ public class BPlusTree implements Serializable {
         node.keys[index] = value;
         node.numKeys++;
 
-        //this.stepsTree.add(visualization.CloneUtils.clone(this));
 
     }
 
 
+    /**
+     * @param node
+     */
     public void insertValidate(Node node) {
         if (node.numKeys <= this.maxKeys) {
             return;
@@ -184,6 +174,10 @@ public class BPlusTree implements Serializable {
     }
 
 
+    /**
+     * @param node
+     * @return
+     */
     public Node split(Node node) {
         Node rightNode = new Node();
         Node leftNode = new Node();
@@ -252,7 +246,6 @@ public class BPlusTree implements Serializable {
             currentParent.children[index] = leftNode;
             rightNode.parent = currentParent;
             leftNode.parent = currentParent;
-            //this.stepsTree.add(visualization.CloneUtils.clone(this));
 
             return node.parent;
 
@@ -267,21 +260,24 @@ public class BPlusTree implements Serializable {
             rightNode.parent = this.root;
             this.root.isLeaf = false;
 
-            // this.stepsTree.add(visualization.CloneUtils.clone(this));
             return this.root;
         }
     }
 
-    /*Delete */
+    /**
+     * Delete
+     *
+     * @param deletedValue
+     */
     public void deleteElement(double deletedValue) {
         this.doDelete(this.root, deletedValue);
-        /*if (this.root.numKeys == 0) {
-            this.root = this.root.children[0];
-            this.root.parent = null;
 
-        }*/
     }
 
+    /**
+     * @param node
+     * @param val
+     */
     public void doDelete(Node node, double val) {
         if (node != null) {
             int i;
@@ -326,14 +322,16 @@ public class BPlusTree implements Serializable {
 
                 }
                 this.validateAfterDelete(node);
-                this.stepsTree.clear();
-                this.stepsTree.add(CloneUtils.clone(this));
+
             }
 
         }
     }
 
 
+    /**
+     * @param node
+     */
     public void validateAfterDelete(Node node) {
         if (node.numKeys < this.minKeys) {
             if (node.parent == null) {
@@ -369,6 +367,11 @@ public class BPlusTree implements Serializable {
     }
 
 
+    /**
+     * @param node
+     * @param index
+     * @return
+     */
     public Node stealFromRight(Node node, int index) {
         // Steal from right sibling
         Node parentNode = node.parent;
@@ -404,6 +407,11 @@ public class BPlusTree implements Serializable {
     }
 
 
+    /**
+     * @param node
+     * @param index
+     * @return
+     */
     public Node stealFromLeft(Node node, int index) {
         Node parentNode = node.parent;
         node.numKeys++;
@@ -436,6 +444,10 @@ public class BPlusTree implements Serializable {
     }
 
 
+    /**
+     * @param node
+     * @return
+     */
     public Node mergeRight(Node node) {
 
         Node parentNode = node.parent;
@@ -479,51 +491,12 @@ public class BPlusTree implements Serializable {
     }
 
 
-    /*find*/
-
-    public void findElement(double value) {
-
-        this.findInTree(this.root, value);
-
-    }
-
-    public void findInTree(Node node, double val) {
-        if (node != null) {
-            int i;
-            for (i = 0; i < node.numKeys && node.keys[i] < val; i++) ;
-            if (i == node.numKeys) {
-                if (!node.isLeaf) {
-                    this.findInTree(node.children[node.numKeys], val);
-                } else {
-                }
-            } else if (node.keys[i] > val) {
-                if (!node.isLeaf) {
-                    System.out.println("Step");
-                    System.out.println(node.children[i]);
-                    this.findInTree(node.children[i], val);
-                } else {
-                    System.out.println("Element " + val + " is not in the tree");
-                }
-            } else {
-                if (node.isLeaf) {
-                    System.out.println("Element " + val + " found");
-                    System.out.println("Step");
-
-                } else {
-                    System.out.println("Step");
-                    System.out.println(node.children[i + 1]);
-                    this.findInTree(node.children[i + 1], val);
-                }
-            }
-        } else {
-            System.out.println("Element " + val + " is not in the tree");
-        }
-    }
-
-
-
-    /*Print Console */
-
+    /**
+     * Print Console
+     *
+     * @param node
+     * @param level
+     */
     public void printTree(Node node, int level) {
         if (node != null) {
             int i = node.numKeys - 1;
@@ -540,11 +513,19 @@ public class BPlusTree implements Serializable {
         }
     }
 
+    /**
+     * Print Console
+     */
     public void print() {
         System.out.println("****************************");
         printTree(this.root, 0);
     }
 
+    /**
+     * @param key1
+     * @param key2
+     * @return
+     */
     public List search(double key1, double key2) {
         System.out.println("Searching between keys " + key1 + ", " + key2);
         List searchKeys = new ArrayList<>();
@@ -618,6 +599,10 @@ public class BPlusTree implements Serializable {
     }
 
 
+    /**
+     * @param key
+     * @return
+     */
     public Node getNode(double key) {
         Node currentNode = root;
         while (currentNode != null) {

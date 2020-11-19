@@ -34,44 +34,6 @@ public class pruebas {
             prueba1.insertElement(i);
             prueba1.print();
         }
-        //
-        //
-
-
-/*
-        System.out.println("Delete");
-        prueba1.deleteElement(11);
-        prueba1.print();
-        prueba1.deleteElement(10);
-        prueba1.print();
-        prueba1.deleteElement(8);
-        prueba1.print();
-        prueba1.deleteElement(7);
-        prueba1.print();
-        prueba1.deleteElement(3);
-        prueba1.print();
-        prueba1.print();
-        prueba1.insertElement(13);
-        prueba1.print();
-        //prueba1.print();
-        prueba1.insertElement(15);
-        prueba1.print();
-        //prueba1.print();
-        prueba1.insertElement(14);
-        prueba1.print();
-        //prueba1.print();
-        prueba1.insertElement(12);
-        prueba1.print();
-        //prueba1.print();
-        prueba1.insertElement(20);
-        prueba1.print();
-        prueba1.findElement(1);
-        /*for (int i = 0; i < 200; i++) {
-            prueba1.insertElement(i);
-            prueba1.print();
-        }*/
-
-        prueba1.findElement(25);
 
     }
 }

@@ -1,8 +1,0 @@
-<component name="ArtifactManager">
-  <artifact type="jar" name="BTreePlusJFX:jar">
-    <output-path>$PROJECT_DIR$/out/artifacts/BTreePlusJFX_jar</output-path>
-    <root id="archive" name="BTreePlusJFX.jar">
-      <element id="module-output" name="BTreePlusJFX" />
-    </root>
-  </artifact>
-</component>

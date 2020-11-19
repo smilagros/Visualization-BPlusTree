@@ -6,6 +6,9 @@ import javafx.scene.control.TextField;
 
 import java.util.Objects;
 
+/**
+ *
+ */
 public class LimitedTextField extends TextField {
 
     private final IntegerProperty maxLength;
@@ -28,6 +31,11 @@ public class LimitedTextField extends TextField {
         this.maxLength.setValue(maxLength);
     }
 
+    /**
+     * @param start
+     * @param end
+     * @param insertedText
+     */
     @Override
     public void replaceText(int start, int end, String insertedText) {
         if (this.getMaxLength() <= 0) {

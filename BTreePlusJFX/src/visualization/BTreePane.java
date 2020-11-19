@@ -13,14 +13,12 @@ import javafx.util.Duration;
 import tree.BPlusTree;
 import tree.Node;
 
-import java.util.ArrayList;
-import java.util.List;
 
-
+/**
+ *
+ */
 public class BTreePane extends Pane {
     private double originalX, originalY;
-
-    // TODO: make node size relate to pane's size
     private final int fontSize = 14;
     private final int rectangleWidth = 42;
     private final int rowSpace = 60;
@@ -33,21 +31,34 @@ public class BTreePane extends Pane {
         this.originalY = y;
     }
 
+    /**
+     * @param bTree
+     * @param x
+     */
     /*
      * Draw Tree & tree.Node
      */
-    public void updatePane(BPlusTree bTree, double x){
+    public void updatePane(BPlusTree bTree, double x) {
         this.getChildren().clear();
         this.originalX = x / 2;
         DrawBTree(bTree.getRoot(), originalX, originalY);
 
     }
 
+    /**
+     * @param bTree
+     */
     public void updatePane(BPlusTree bTree) {
         this.getChildren().clear();
         DrawBTree(bTree.getRoot(), originalX, originalY);
     }
 
+    /**
+     * @param s
+     * @param x
+     * @param y
+     * @param color
+     */
     private void DrawNode(String s, double x, double y, Color color) {
 
         Rectangle rect = new Rectangle(x, y, rectangleWidth, rectangleWidth);
@@ -62,11 +73,21 @@ public class BTreePane extends Pane {
         this.getChildren().addAll(rect, txt);
     }
 
+    /**
+     * @param input
+     * @param maxLen
+     * @return
+     */
     String normalizeNumber(String input, int maxLen) {
         String s = "OOO0000" + input;
         return s.substring(s.length() - maxLen);
     }
 
+    /**
+     * @param node
+     * @param x
+     * @param y
+     */
     private void DrawBTree(Node node, double x, double y) {
         if (node != null) {
             double result = resizeWidths(node);
@@ -127,6 +148,10 @@ public class BTreePane extends Pane {
         }
     }
 
+    /**
+     * @param node
+     * @return
+     */
     public double resizeWidths(Node node) {
         int width;
         if (node == null) {
@@ -151,6 +176,11 @@ public class BTreePane extends Pane {
     }
 
 
+    /**
+     * @param tree
+     * @param xPosition
+     * @param yPosition
+     */
     public void setNewPositions(Node tree, double xPosition, double yPosition) {
         if (tree != null) {
             tree.y = yPosition;
@@ -167,6 +197,11 @@ public class BTreePane extends Pane {
     }
 
 
+    /**
+     * @param bTree
+     * @param key
+     * @throws Exception
+     */
     public void searchPathColoring(BPlusTree bTree, double key) throws Exception {
         updatePane(bTree);
         Node curr = bTree.getRoot();
@@ -174,8 +209,10 @@ public class BTreePane extends Pane {
             double delay = 0;
             // Traverse to the corresponding external node that would 'should'
             // contain this key
-            while (curr.getChildren().length != 0) {
+            while (curr != null && curr.getChildren().length != 0) {
                 int index = binarySearchWithinInternalNode(key, curr.keys, curr.numKeys);
+
+                //Animation
                 for (int i = 0; i < index; i++) {
                     double number = curr.getKey(i);
                     long iPart = (long) number;
@@ -196,51 +233,58 @@ public class BTreePane extends Pane {
                     makeNodeAnimation(label, curr.x + 0 * rectangleWidth, curr.y, delay);
                     delay += 0.5;
                 }
-                //System.out.println("index" + index);
-                curr = curr.children[binarySearchWithinInternalNode(key, curr.keys, curr.numKeys)];
+                //Next
+                curr = curr.children[index];
             }
+
 
             throw new Exception("Not in the tree!");
         }
     }
 
+    /**
+     * @param bTree
+     * @param key1
+     * @param key2
+     * @throws Exception
+     */
     public void searchPathColoring2(BPlusTree bTree, double key1, double key2) throws Exception {
         updatePane(bTree);
         Node currNode = bTree.getRoot();
         if (currNode != null) {
             double delay = 0;
             System.out.println("Searching between keys " + key1 + ", " + key2);
-            List searchKeys = new ArrayList<>();
+            //List searchKeys = new ArrayList<>();
             // Traverse to the corresponding external node that would 'should'
             // contain starting key (key1)
+            while (currNode != null && currNode.getChildren()[0] != null) {
 
-            while (currNode.getChildren()[0] != null) {
-                currNode = currNode.getChildren()[binarySearchWithinInternalNode(key1, currNode.getKeys(), currNode.numKeys)];
+                int index = binarySearchWithinInternalNode(key1, currNode.getKeys(), currNode.numKeys);
+                currNode = currNode.getChildren()[index];
             }
 
             // Start from current node and add keys whose value lies between key1 and key2 with their corresponding pairs
             // Stop if end of list is encountered or if value encountered in list is greater than key2
 
             boolean endSearch = false;
-            while (null != currNode && !endSearch) {
+            while (currNode != null && !endSearch) {
                 for (int i = 0; i < currNode.numKeys; i++) {
                     Double key = currNode.getKeys()[i];
                     double number = currNode.getKey(i);
                     long iPart = (long) number;
                     String label = String.valueOf(iPart);
-                    makeNodeAnimation(label, currNode.x + i * rectangleWidth, currNode.y, delay);
 
                     if (key >= key1 && key <= key2)
-                        searchKeys.add(currNode.getKeys()[i]);
+                        makeNodeAnimation(label, currNode.x + i * rectangleWidth, currNode.y, delay);
                     delay += 0.5;
                     if (currNode.getKeys()[i] > key2) {
-
                         endSearch = true;
+                        return;
                     }
                 }
+
                 currNode = currNode.getNext();
             }
-
 
             throw new Exception("Not in the tree!");
         }
@@ -249,15 +293,18 @@ public class BTreePane extends Pane {
     }
 
 
-
-    public void searchPathColoring3(BPlusTree bTree, double key){
+    /**
+     * @param bTree
+     * @param key
+     */
+    public void searchPathColoring3(BPlusTree bTree, double key) {
         updatePane(bTree);
         Node curr = bTree.getRoot();
         if (curr != null) {
             double delay = 0;
             // Traverse to the corresponding external node that would 'should'
             // contain this key
-            while (curr.getChildren().length != 0) {
+            while (curr != null && curr.getChildren().length != 0) {
                 int index = binarySearchWithinInternalNode(key, curr.keys, curr.numKeys);
                 for (int i = 0; i < index; i++) {
                     double number = curr.getKey(i);
@@ -280,7 +327,7 @@ public class BTreePane extends Pane {
                     delay += 0.5;
                 }
                 //System.out.println("index" + index);
-                curr = curr.children[binarySearchWithinInternalNode(key, curr.keys, curr.numKeys)];
+                curr = curr.children[index];
             }
 
         }
@@ -290,6 +337,12 @@ public class BTreePane extends Pane {
      * Draw Animation
      */
 
+    /**
+     * @param s
+     * @param x
+     * @param y
+     * @param delay
+     */
     // TODO: refactor
     private void makeNodeAnimation(String s, double x, double y, double delay) {
         // Draw a node
@@ -322,6 +375,12 @@ public class BTreePane extends Pane {
         fill.play();
     }
 
+    /**
+     * @param s
+     * @param x
+     * @param y
+     * @param delay
+     */
     private void makeNodeAnimation3(String s, double x, double y, double delay) {
         // Draw a node
         Rectangle rect = new Rectangle(x, y, rectangleWidth, rectangleWidth);
@@ -349,6 +408,12 @@ public class BTreePane extends Pane {
         fill.play();
     }
 
+    /**
+     * @param key
+     * @param keyList
+     * @param length
+     * @return
+     */
     public int binarySearchWithinInternalNode(double key, Double[] keyList, int length) {
         int st = 0;
         int end = length - 1;

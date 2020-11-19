@@ -41,6 +41,9 @@ public class Arrow extends Group {
         update();
     }
 
+    /**
+     *
+     */
     private void setUpStyleClassStructure() {
         mainLine.getStyleClass().setAll("arrow");
         headA.getStyleClass().setAll("arrow");
@@ -58,6 +61,9 @@ public class Arrow extends Group {
         });
     }
 
+    /**
+     *
+     */
     private void update() {
         double[] start = scale(x1.get(), y1.get(), x2.get(), y2.get());
         double[] end = scale(x2.get(), y2.get(), x1.get(), y1.get());
@@ -87,6 +93,13 @@ public class Arrow extends Group {
         headB.getPoints().addAll(x, y);
     }
 
+    /**
+     * @param x1
+     * @param y1
+     * @param x2
+     * @param y2
+     * @return
+     */
     private double[] scale(double x1, double y1, double x2, double y2) {
         double theta = Math.atan2(y2 - y1, x2 - x1);
         return new double[]{

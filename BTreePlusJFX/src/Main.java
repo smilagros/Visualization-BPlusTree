@@ -23,36 +23,33 @@ import visualization.LimitedTextField;
 import java.awt.*;
 import java.util.LinkedList;
 
+/**
+ *
+ */
 public class Main extends Application {
     private double key;
     private int order = 3;
-
     private double key1;
     private double key2;
     private double generate;
     private BTreePane btPane;
-
-
     private LimitedTextField keyText = new LimitedTextField();
-    //private LimitedTextField orderText = new LimitedTextField();
-
     private LimitedTextField numberOne = new LimitedTextField();
     private LimitedTextField numberTwo = new LimitedTextField();
-
     private LimitedTextField generateText = new LimitedTextField();
     private LinkedList<BPlusTree> bTreeLinkedList = new LinkedList<BPlusTree>();
-
-    BPlusTree bTree = new BPlusTree();
-
-
     public Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
     public double windowWidth = screenSize.getWidth() * .75;
     public double windowHeight = screenSize.getHeight() * .75;
-
     private Canvas canvas;
     final ScrollPane sp = new ScrollPane();
+    BPlusTree bTree = new BPlusTree();
 
 
+    /**
+     * Start
+     * @param primaryStage
+     */
     @Override
     public void start(Stage primaryStage) {
         bTree.initialize(order);
@@ -61,10 +58,12 @@ public class Main extends Application {
         borderPane.setBorder(new Border(new BorderStroke(Color.GREEN,
                 BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
         borderPane.setPadding(new Insets(0));
+
         // Bind the width/height property to the wrapper Pane
         canvas.widthProperty().bind(borderPane.widthProperty());
         canvas.heightProperty().bind(borderPane.heightProperty());
-        // redraw when resized
+
+        // Resize
         canvas.widthProperty().addListener(event -> resize(canvas));
         canvas.heightProperty().addListener(event -> resize(canvas));
 
@@ -88,9 +87,7 @@ public class Main extends Application {
         keyText.setPrefWidth(60);
         keyText.setMaxLength(4);
         keyText.setAlignment(Pos.BASELINE_RIGHT);
-        // OrderField
-        //orderText.setPrefWidth(60);
-        //orderText.setAlignment(Pos.BOTTOM_CENTER);
+
         // Between search
         numberOne.setPrefWidth(60);
         numberOne.setAlignment(Pos.BOTTOM_CENTER);
@@ -99,7 +96,7 @@ public class Main extends Application {
         numberTwo.setPrefWidth(60);
         numberTwo.setAlignment(Pos.BOTTOM_CENTER);
         numberTwo.setMaxLength(4);
-
+        //Generate
         generateText.setPrefWidth(60);
         generateText.setAlignment(Pos.BOTTOM_LEFT);
         generateText.setMaxLength(4);
@@ -120,12 +117,12 @@ public class Main extends Application {
                 new Label("Ingresa el rango de números a buscar: "), numberOne, numberTwo, searchBetweenButton, resetButton, nullLabel);
         hBox.setAlignment(Pos.CENTER);
 
-        String orderList[] = {"3", "4", "5", "6", "7"};
         // Create a combo box
+        String orderList[] = {"3", "4", "5", "6", "7"};
         ComboBox comboBox = new ComboBox(FXCollections.observableArrayList(orderList));
         //Select default value
         comboBox.getSelectionModel().selectFirst();
-        // Create action event
+        //Create action event
         EventHandler<ActionEvent> event =
                 new EventHandler<ActionEvent>() {
                     public void handle(ActionEvent e) {
@@ -153,7 +150,6 @@ public class Main extends Application {
         borderPane.setTop(hBox);
         //Set Center
         borderPane.setCenter(sp);
-
         //Set Bottom
         borderPane.setBottom(hBoxBottom);
 
@@ -189,20 +185,23 @@ public class Main extends Application {
     }
 
 
+    /**
+     * @param canvas
+     */
     public void resize(Canvas canvas) {
         this.windowWidth = canvas.getWidth();
         this.windowHeight = canvas.getHeight();
     }
 
 
+    /**
+     *
+     */
     private void insertValue() {
         try {
             key = Double.parseDouble(keyText.getText());
             keyText.setText("");
-            //bTree.setStepsTree(new LinkedList<BPlusTree>());
             bTree.insertElement(key);
-            //bTreeLinkedList = bTree.getStepsTree();
-            //int size = bTreeLinkedList.size();
             btPane.updatePane(bTree, this.windowWidth);
             btPane.searchPathColoring3(bTree, key);
         } catch (NumberFormatException e) {
@@ -213,23 +212,19 @@ public class Main extends Application {
         }
     }
 
+    /**
+     *
+     */
     private void insertValues() {
         try {
             generate = Double.parseDouble(generateText.getText());
             generateText.setText("");
-            //bTree.setStepsTree(new LinkedList<BPlusTree>());
-            reset();/**/
+            reset();
             for (int i = 0; i < generate; i++) {
-                // bTree.insertElement((int) (Math.random() * i) + 1);
                 bTree.insertElement(i);
 
             }
-
-            //bTreeLinkedList = bTree.getStepsTree();
-            //int size = bTreeLinkedList.size();
-
             btPane.updatePane(bTree, this.windowWidth);
-            //System.out.println(" this.windowWidth"+ this.windowWidth);
         } catch (NumberFormatException e) {
             Alert alert = new Alert(Alert.AlertType.WARNING, "Dato de entrada incorrecto!", ButtonType.OK);
             alert.show();
@@ -238,6 +233,9 @@ public class Main extends Application {
         }
     }
 
+    /**
+     *
+     */
     private void deleteValue() {
         try {
             key = Double.parseDouble(keyText.getText());
@@ -245,10 +243,7 @@ public class Main extends Application {
             if (bTree.getNode(key) == null) {
                 throw new Exception("Not in the tree!");
             }
-            //bTree.setStepsTree(new LinkedList<BPlusTree>());
             bTree.deleteElement(key);
-            //bTreeLinkedList = bTree.getStepsTree();
-            //int size = bTreeLinkedList.size();
             btPane.updatePane(bTree, this.windowWidth);
         } catch (NumberFormatException e) {
             Alert alert = new Alert(Alert.AlertType.WARNING, "Dato de entrada incorrecto!", ButtonType.OK);
@@ -259,12 +254,14 @@ public class Main extends Application {
         }
     }
 
+    /**
+     *
+     */
     private void searchValue() {
         try {
             key = Double.parseDouble(keyText.getText());
             keyText.setText("");
             btPane.searchPathColoring(bTree, key);
-
         } catch (NumberFormatException e) {
             Alert alert = new Alert(Alert.AlertType.WARNING, "Dato de entrada incorrecto!", ButtonType.OK);
             alert.show();
@@ -274,6 +271,9 @@ public class Main extends Application {
         }
     }
 
+    /**
+     *
+     */
     private void searchBetweenValues() {
         try {
             key1 = Double.parseDouble(numberOne.getText());
@@ -281,7 +281,6 @@ public class Main extends Application {
             key2 = Double.parseDouble(numberTwo.getText());
             numberTwo.setText("");
             btPane.searchPathColoring2(bTree, key1, key2);
-
         } catch (NumberFormatException e) {
             Alert alert = new Alert(Alert.AlertType.WARNING, "Datos de entrada incorrectos!", ButtonType.OK);
             alert.show();
@@ -292,9 +291,11 @@ public class Main extends Application {
     }
 
 
+    /**
+     *
+     */
     private void reset() {
         keyText.setText("");
-        //orderText.setText("3");
         bTree.setRoot(null);
         bTreeLinkedList.clear();
         resize(canvas);
