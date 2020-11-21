@@ -7,7 +7,7 @@ import javafx.scene.control.TextField;
 import java.util.Objects;
 
 /**
- *
+ *LimitedTextField Class
  */
 public class LimitedTextField extends TextField {
 
@@ -32,6 +32,7 @@ public class LimitedTextField extends TextField {
     }
 
     /**
+     * Replace Text
      * @param start
      * @param end
      * @param insertedText

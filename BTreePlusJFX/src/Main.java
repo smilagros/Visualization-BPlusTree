@@ -24,9 +24,14 @@ import java.awt.*;
 import java.util.LinkedList;
 
 /**
- *
+ * Main
  */
 public class Main extends Application {
+    final ScrollPane sp = new ScrollPane();
+    public Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+    public double windowWidth = screenSize.getWidth() * .75;
+    public double windowHeight = screenSize.getHeight() * .75;
+    BPlusTree bTree = new BPlusTree();
     private double key;
     private int order = 3;
     private double key1;
@@ -38,16 +43,11 @@ public class Main extends Application {
     private LimitedTextField numberTwo = new LimitedTextField();
     private LimitedTextField generateText = new LimitedTextField();
     private LinkedList<BPlusTree> bTreeLinkedList = new LinkedList<BPlusTree>();
-    public Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-    public double windowWidth = screenSize.getWidth() * .75;
-    public double windowHeight = screenSize.getHeight() * .75;
     private Canvas canvas;
-    final ScrollPane sp = new ScrollPane();
-    BPlusTree bTree = new BPlusTree();
-
 
     /**
      * Start
+     *
      * @param primaryStage
      */
     @Override

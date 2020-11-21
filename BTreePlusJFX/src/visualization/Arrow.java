@@ -8,6 +8,9 @@ import javafx.scene.shape.Polyline;
 
 public class Arrow extends Group {
 
+    private final double ARROW_SCALER = 1;
+    private final double ARROWHEAD_ANGLE = Math.toRadians(20);
+    private final double ARROWHEAD_LENGTH = 10;
     private Polyline mainLine = new Polyline();
     private Polyline headA = new Polyline();
     private Polyline headB = new Polyline();
@@ -17,9 +20,6 @@ public class Arrow extends Group {
     private SimpleDoubleProperty y2 = new SimpleDoubleProperty();
     private SimpleBooleanProperty headAVisible = new SimpleBooleanProperty(true);
     private SimpleBooleanProperty headBVisible = new SimpleBooleanProperty(true);
-    private final double ARROW_SCALER = 1;
-    private final double ARROWHEAD_ANGLE = Math.toRadians(20);
-    private final double ARROWHEAD_LENGTH = 10;
 
     public Arrow(double x1, double y1, double x2, double y2) {
         this.x1.set(x1);

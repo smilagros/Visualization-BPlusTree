@@ -4,34 +4,33 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * The Class BPlus Tree
+ */
 public class BPlusTree implements Serializable {
 
     /**
      * The degree order.
      */
     public static int order;
-
     /**
-     * The root of the B Plus node.
+     * The minimum numbers of Keys in the node
      */
-    private Node root;
+
+    public static int minKeys;
     /**
-     * The root of the B Plus node.
+     * The maximum numbers of Keys in the node
      */
 
     public int maxKeys;
     /**
-     * The root of the B Plus node.
-     */
-    public static int minKeys = 1;
-    /**
-     * The root of the B Plus node.
+     * Split Position
      */
     public int splitIndex;
     /**
      * The root of the B Plus node.
      */
-    public int maxDegree;
+    private Node root;
 
     /**
      * Instantiates a new b plus node.
@@ -49,7 +48,6 @@ public class BPlusTree implements Serializable {
         // At initialization, order of the tree is set to m. Root is set to null
         this.order = order;
         this.root = null;
-        this.maxDegree = order;
         this.maxKeys = order - 1;
         this.minKeys = (int) Math.ceil((order + 1) / 2) - 1;
         this.splitIndex = (int) Math.ceil((order) / 2);
@@ -57,18 +55,17 @@ public class BPlusTree implements Serializable {
     }
 
     /**
+     * The tree is empty
+     *
      * @return true, if node is empty
      */
     public boolean isEmpty() {
         return this.root == null;
     }
 
-
-    public void setRoot(Node root) {
-        this.root = root;
-    }
-
     /**
+     * Get root
+     *
      * @return root node
      */
     public Node getRoot() {
@@ -76,6 +73,17 @@ public class BPlusTree implements Serializable {
     }
 
     /**
+     * Set Root Node
+     *
+     * @param root
+     */
+    public void setRoot(Node root) {
+        this.root = root;
+    }
+
+    /**
+     * Get Order
+     *
      * @return order
      */
     public int getOrder() {
@@ -84,6 +92,8 @@ public class BPlusTree implements Serializable {
 
 
     /**
+     * Get height
+     *
      * @param node , the node
      * @return the height of the node position
      */
@@ -123,6 +133,8 @@ public class BPlusTree implements Serializable {
 
 
     /**
+     * Insert value
+     *
      * @param node
      * @param value
      */
@@ -142,6 +154,8 @@ public class BPlusTree implements Serializable {
 
 
     /**
+     * Insert value into the node
+     *
      * @param node
      * @param value
      */
@@ -153,12 +167,12 @@ public class BPlusTree implements Serializable {
         }
         node.keys[index] = value;
         node.numKeys++;
-
-
     }
 
 
     /**
+     * Validate node
+     *
      * @param node
      */
     public void insertValidate(Node node) {
@@ -175,12 +189,16 @@ public class BPlusTree implements Serializable {
 
 
     /**
+     * Split node
+     *
      * @param node
      * @return
      */
     public Node split(Node node) {
+        //Create new Nodes
         Node rightNode = new Node();
         Node leftNode = new Node();
+        //Calculate midle value
         double midleValue = node.keys[this.splitIndex];
 
         int rightSplit = this.splitIndex;
@@ -265,7 +283,7 @@ public class BPlusTree implements Serializable {
     }
 
     /**
-     * Delete
+     * Delete key from node
      *
      * @param deletedValue
      */
@@ -275,23 +293,34 @@ public class BPlusTree implements Serializable {
     }
 
     /**
+     * Delete
+     *
      * @param node
-     * @param val
+     * @param key the key to be deleted
      */
-    public void doDelete(Node node, double val) {
+    public void doDelete(Node node, double key) {
         if (node != null) {
-            int i;
-            for (i = 0; i < node.numKeys && node.keys[i] < val; i++) ;
+            //Find node
+            int i = 0;
+            while (i < node.numKeys && node.keys[i] < key) {
+                i++;
+            }
+            //Delete in last children
             if (i == node.numKeys) {
                 if (!node.isLeaf) {
-                    this.doDelete(node.children[node.numKeys], val);
+                    this.doDelete(node.children[node.numKeys], key);
                 }
-
-            } else if (!node.isLeaf && node.keys[i] == val) {
-                this.doDelete(node.children[i + 1], val);
+            }
+            //Find key in internal node when
+            else if (!node.isLeaf && node.keys[i] == key) {
+                //Delete key in the right children
+                this.doDelete(node.children[i + 1], key);
+                //Delete in internal node
             } else if (!node.isLeaf) {
-                this.doDelete(node.children[i], val);
-            } else if (node.isLeaf && node.keys[i] == val) {
+                this.doDelete(node.children[i], key);
+                //Node is leaf when
+            } else if (node.isLeaf && node.keys[i] == key) {
+                //Delete key
                 for (int j = i; j < node.numKeys - 1; j++) {
                     node.keys[j] = node.keys[j + 1];
                 }
@@ -303,26 +332,24 @@ public class BPlusTree implements Serializable {
                     int index;
                     for (index = 0; parentNode.children[index] != node; index++) ;
                     if (node.numKeys == 0) {
-                        if (index == parentNode.numKeys) {
-                        } else {
+                        if (!(index == parentNode.numKeys)) {
                             nextSmallest = parentNode.children[index + 1].keys[0];
                         }
                     } else {
                         nextSmallest = node.keys[0];
                     }
                     while (parentNode != null) {
-                        if (index > 0 && parentNode.keys[index - 1] == val) {
+                        if (index > 0 && parentNode.keys[index - 1] == key) {
                             parentNode.keys[index - 1] = nextSmallest;
                         }
                         Node grandParent = parentNode.parent;
-                        for (index = 0; grandParent != null && grandParent.children[index] != parentNode; index++)
-                            ;
+
                         parentNode = grandParent;
                     }
 
                 }
+                //Validate node :quantity minimal of keys
                 this.validateAfterDelete(node);
-
             }
 
         }
@@ -330,6 +357,8 @@ public class BPlusTree implements Serializable {
 
 
     /**
+     * Validate node after delete
+     *
      * @param node
      */
     public void validateAfterDelete(Node node) {
@@ -342,9 +371,10 @@ public class BPlusTree implements Serializable {
                 }
             } else {
                 Node parentNode = node.parent;
-                int index;
-                for (index = 0; parentNode.children[index] != node; index++) ;
-
+                int index = 0;
+                while (parentNode.children[index] != node) {
+                    index++;
+                }
                 if (index > 0 && parentNode.children[index - 1].numKeys > this.minKeys) {
                     this.stealFromLeft(node, index);
 
@@ -361,8 +391,6 @@ public class BPlusTree implements Serializable {
                     this.validateAfterDelete(nextNode.parent);
                 }
             }
-        } else if (node.parent != null) {
-
         }
     }
 
@@ -390,7 +418,6 @@ public class BPlusTree implements Serializable {
         if (!node.isLeaf) {
             node.children[node.numKeys] = rightSib.children[0];
             node.children[node.numKeys].parent = node;
-
 
             for (int i = 1; i < rightSib.numKeys + 1; i++) {
                 rightSib.children[i - 1] = rightSib.children[i];
@@ -435,9 +462,8 @@ public class BPlusTree implements Serializable {
             }
             node.children[0] = leftSib.children[leftSib.numKeys];
             leftSib.children[leftSib.numKeys] = null;
-            node.children[0].parent = node;//aqui error
+            node.children[0].parent = node;
         }
-
         leftSib.numKeys--;
 
         return node;
@@ -445,18 +471,21 @@ public class BPlusTree implements Serializable {
 
 
     /**
+     * Merge node
      * @param node
      * @return
      */
     public Node mergeRight(Node node) {
 
         Node parentNode = node.parent;
-        int index;
-        for (index = 0; parentNode.children[index] != node; index++) ;
+        int index = 0;
+        while (parentNode.children[index] != node) {
+            index++;
+        }
+
         Node rightSib = parentNode.children[index + 1];
 
-        if (node.isLeaf) {
-        } else {
+        if (!node.isLeaf) {
             node.keys[node.numKeys] = parentNode.keys[index];
         }
 
@@ -472,7 +501,6 @@ public class BPlusTree implements Serializable {
             for (int i = 0; i <= rightSib.numKeys; i++) {
                 node.children[node.numKeys + 1 + i] = rightSib.children[i];
                 node.children[node.numKeys + 1 + i].parent = node;
-
             }
             node.numKeys = node.numKeys + rightSib.numKeys + 1;
 
@@ -492,9 +520,8 @@ public class BPlusTree implements Serializable {
 
 
     /**
-     * Print Console
-     *
-     * @param node
+     * Print in console
+     * @param node  Start Node
      * @param level
      */
     public void printTree(Node node, int level) {
@@ -522,6 +549,8 @@ public class BPlusTree implements Serializable {
     }
 
     /**
+     * Search between two keys
+     *
      * @param key1
      * @param key2
      * @return
@@ -600,8 +629,8 @@ public class BPlusTree implements Serializable {
 
 
     /**
-     * @param key
-     * @return
+     * @param key the key to be searched
+     * @return Node asociated to key
      */
     public Node getNode(double key) {
         Node currentNode = root;

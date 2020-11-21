@@ -29,12 +29,18 @@ public class Node implements Serializable {
      */
     public Node parent;
 
-
+    /**
+     * The node is leaf or external node
+     */
     public boolean isLeaf;
 
-
+    /**
+     * Position x
+     */
     public double x;
-
+    /**
+     * Position y
+     */
     public double y;
 
     public double[] widths;
@@ -55,33 +61,59 @@ public class Node implements Serializable {
     }
 
 
+    /**
+     * Get keys size
+     *
+     * @return
+     */
     public int getSize() {
         return this.numKeys;
     }
 
+    /**
+     * Node is leaf or external node
+     *
+     * @return true o false
+     */
     public boolean isLeaf() {
         if (this.isLeaf == true) {
             return true;
         } else {
-
             return false;
         }
     }
 
+    /**
+     * Set node flag to left
+     *
+     * @param value
+     */
     public void setLeaf(boolean value) {
         this.isLeaf = value;
     }
 
 
+    /**
+     * Get numKeys
+     *
+     * @return
+     */
     public int getNumKeys() {
         return this.numKeys;
     }
 
+    /**
+     * Set NumKeys
+     *
+     * @param numKeys
+     */
     public void setNumKeys(int numKeys) {
         this.numKeys = numKeys;
     }
 
     /**
+     * Get key in the index
+     *
      * @param index the index to get
      * @return the key
      */
@@ -90,6 +122,11 @@ public class Node implements Serializable {
     }
 
 
+    /**
+     * Keys is null
+     *
+     * @return
+     */
     public boolean isNull() {
         if (keys.length == 0) {
             return true;
@@ -107,18 +144,6 @@ public class Node implements Serializable {
      */
     public Double[] getKeys() {
         return keys;
-    }
-
-    /**
-     * Sets the keys.
-     *
-     * @param keys the new keys
-     */
-    public void setKeys(Double[] keys) {
-     /*   Iterator<Double> iter = keys.iterator();
-        while (iter.hasNext()) {
-            this.keys.add(iter.next());
-        }*/
     }
 
     /**
@@ -172,10 +197,20 @@ public class Node implements Serializable {
         return "Keys =" + keys.toString();
     }
 
+    /**
+     * Node is overflowed
+     *
+     * @return
+     */
     public boolean isOverflowed() {
-        return keys.length == BPlusTree.order;
+        return keys.length == BPlusTree.order - 1;
     }
 
+    /**
+     * Node is underflowed
+     *
+     * @return
+     */
     public boolean isUnderflowed() {
         return keys.length < BPlusTree.minKeys;
     }

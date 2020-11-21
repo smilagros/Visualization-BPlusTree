@@ -15,16 +15,16 @@ import tree.Node;
 
 
 /**
- *
+ * B TreePane Class
  */
 public class BTreePane extends Pane {
-    private double originalX, originalY;
     private final int fontSize = 14;
     private final int rectangleWidth = 42;
     private final int rowSpace = 60;
     private final int WIDTH_PER_ELEM = 40;
     private final int NODE_SPACING = 40;
     private final int HEIGHT_DELTA = 50;
+    private double originalX, originalY;
 
     public BTreePane(double x, double y) {
         this.originalX = x;
@@ -54,10 +54,11 @@ public class BTreePane extends Pane {
     }
 
     /**
-     * @param s
-     * @param x
-     * @param y
-     * @param color
+     * Draw Node
+     * @param s     Label
+     * @param x     coordenate
+     * @param y     coordenate
+     * @param color font
      */
     private void DrawNode(String s, double x, double y, Color color) {
 
@@ -74,6 +75,7 @@ public class BTreePane extends Pane {
     }
 
     /**
+     * Normalize number
      * @param input
      * @param maxLen
      * @return
@@ -84,6 +86,7 @@ public class BTreePane extends Pane {
     }
 
     /**
+     * Draw Tree
      * @param node
      * @param x
      * @param y
@@ -149,6 +152,7 @@ public class BTreePane extends Pane {
     }
 
     /**
+     * Calculate widths     *
      * @param node
      * @return
      */
@@ -177,6 +181,8 @@ public class BTreePane extends Pane {
 
 
     /**
+     * Calculate position
+     *
      * @param tree
      * @param xPosition
      * @param yPosition
@@ -198,8 +204,9 @@ public class BTreePane extends Pane {
 
 
     /**
+     * Draw search path     *
      * @param bTree
-     * @param key
+     * @param key the key to be search
      * @throws Exception
      */
     public void searchPathColoring(BPlusTree bTree, double key) throws Exception {
@@ -243,9 +250,10 @@ public class BTreePane extends Pane {
     }
 
     /**
+     * Search between two keys
      * @param bTree
-     * @param key1
-     * @param key2
+     * @param key1 the key1 to be search
+     * @param key2 the key2 to be search
      * @throws Exception
      */
     public void searchPathColoring2(BPlusTree bTree, double key1, double key2) throws Exception {
@@ -254,31 +262,26 @@ public class BTreePane extends Pane {
         if (currNode != null) {
             double delay = 0;
             System.out.println("Searching between keys " + key1 + ", " + key2);
-            //List searchKeys = new ArrayList<>();
             // Traverse to the corresponding external node that would 'should'
             // contain starting key (key1)
             while (currNode != null && currNode.getChildren()[0] != null) {
-
                 int index = binarySearchWithinInternalNode(key1, currNode.getKeys(), currNode.numKeys);
                 currNode = currNode.getChildren()[index];
             }
-
             // Start from current node and add keys whose value lies between key1 and key2 with their corresponding pairs
             // Stop if end of list is encountered or if value encountered in list is greater than key2
-
-            boolean endSearch = false;
-            while (currNode != null && !endSearch) {
+            while (currNode != null) {
                 for (int i = 0; i < currNode.numKeys; i++) {
                     Double key = currNode.getKeys()[i];
                     double number = currNode.getKey(i);
                     long iPart = (long) number;
                     String label = String.valueOf(iPart);
 
-                    if (key >= key1 && key <= key2)
+                    if (key >= key1 && key <= key2) {
                         makeNodeAnimation(label, currNode.x + i * rectangleWidth, currNode.y, delay);
-                    delay += 0.5;
+                        delay += 0.5;
+                    }
                     if (currNode.getKeys()[i] > key2) {
-                        endSearch = true;
                         return;
                     }
                 }
@@ -294,8 +297,9 @@ public class BTreePane extends Pane {
 
 
     /**
+     * Draw insert path
      * @param bTree
-     * @param key
+     * @param key the key to search
      */
     public void searchPathColoring3(BPlusTree bTree, double key) {
         updatePane(bTree);
@@ -335,12 +339,9 @@ public class BTreePane extends Pane {
 
     /*
      * Draw Animation
-     */
-
-    /**
-     * @param s
-     * @param x
-     * @param y
+     * @param s Label
+     * @param x position
+     * @param y position
      * @param delay
      */
     // TODO: refactor
