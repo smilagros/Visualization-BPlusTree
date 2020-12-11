@@ -296,16 +296,17 @@ public class BPlusTree implements Serializable {
      * Delete
      *
      * @param node
-     * @param key the key to be deleted
+     * @param key  the key to be deleted
      */
     public void doDelete(Node node, double key) {
+        //The tree isn't empty
         if (node != null) {
             //Find node
             int i = 0;
             while (i < node.numKeys && node.keys[i] < key) {
                 i++;
             }
-            //Delete in last children
+            //Call recursive to doDelete when the key is mayor a todos los valores del arreglo
             if (i == node.numKeys) {
                 if (!node.isLeaf) {
                     this.doDelete(node.children[node.numKeys], key);
@@ -472,6 +473,7 @@ public class BPlusTree implements Serializable {
 
     /**
      * Merge node
+     *
      * @param node
      * @return
      */
@@ -521,6 +523,7 @@ public class BPlusTree implements Serializable {
 
     /**
      * Print in console
+     *
      * @param node  Start Node
      * @param level
      */
