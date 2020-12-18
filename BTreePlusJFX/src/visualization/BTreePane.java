@@ -12,7 +12,7 @@ import javafx.scene.text.Text;
 import javafx.util.Duration;
 import tree.BPlusTree;
 import tree.Node;
-
+import tree.Key;
 
 /**
  * B TreePane Class
@@ -121,7 +121,7 @@ public class BTreePane extends Pane {
             this.setNewPositions(node, x, y);
             // Draw keys of node
             for (int i = 0; i < node.numKeys; i++) {
-                double number = node.keys[i];
+                double number = node.getKey(i);
                 long iPart = (long) number;
                 String label = String.valueOf(iPart);
                 DrawNode(label, node.x + i * rectangleWidth, node.y, Color.web("#DDEEDD"));
@@ -239,7 +239,7 @@ public class BTreePane extends Pane {
             // Traverse to the corresponding external node that would 'should'
             // contain this key
             while (curr != null && curr.getChildren().length != 0) {
-                int index = binarySearchWithinInternalNode(key, curr.keys, curr.numKeys);
+                int index = binarySearchWithinInternalNode(key, curr.getKeys(), curr.numKeys);
 
                 //Animation
                 for (int i = 0; i < index; i++) {
@@ -295,7 +295,7 @@ public class BTreePane extends Pane {
             // Stop if end of list is encountered or if value encountered in list is greater than key2
             while (currNode != null) {
                 for (int i = 0; i < currNode.numKeys; i++) {
-                    Double key = currNode.getKeys()[i];
+                    Double key = currNode.getKey(i);
                     double number = currNode.getKey(i);
                     long iPart = (long) number;
                     String label = String.valueOf(iPart);
@@ -304,7 +304,7 @@ public class BTreePane extends Pane {
                         makeNodeAnimation(label, currNode.x + i * rectangleWidth, currNode.y, delay);
                         delay += 0.5;
                     }
-                    if (currNode.getKeys()[i] > key2) {
+                    if (currNode.getKey(i)> key2) {
                         return;
                     }
                 }
@@ -439,18 +439,18 @@ public class BTreePane extends Pane {
      * @param length
      * @return
      */
-    public int binarySearchWithinInternalNode(double key, Double[] keyList, int length) {
+    public int binarySearchWithinInternalNode(double key, Key[] keyList, int length) {
         int st = 0;
         int end = length - 1;
         int mid;
         int index = -1;
         // Return first index if key is less than the first element
-        if (key < keyList[st]) {
+        if (key < keyList[st].getKey()) {
             return 0;
         }
         // Return array size + 1 as the new position of the key if greater than
         // last element
-        if (key >= keyList[end]) {
+        if (key >= keyList[end].getKey()) {
             return length;
         }
         while (st <= end) {
@@ -459,11 +459,11 @@ public class BTreePane extends Pane {
             // smaller than element at that index and is greater than or equal
             // to the element at the previous index. This location is where the
             // key would be inserted
-            if (key < keyList[mid] && key >= keyList[mid - 1]) {
+            if (key < keyList[mid].getKey() && key >= keyList[mid - 1].getKey()) {
                 index = mid;
                 break;
             } // Following conditions follow normal Binary Search
-            else if (key >= keyList[mid]) {
+            else if (key >= keyList[mid].getKey()) {
                 st = mid + 1;
             } else {
                 end = mid - 1;
