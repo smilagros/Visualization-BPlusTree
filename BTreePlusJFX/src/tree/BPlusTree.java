@@ -55,15 +55,6 @@ public class BPlusTree {
     }
 
     /**
-     * The tree is empty
-     *
-     * @return true, if node is empty
-     */
-    public boolean isEmpty() {
-        return this.root == null;
-    }
-
-    /**
      * Get root
      *
      * @return root node
@@ -81,53 +72,20 @@ public class BPlusTree {
         this.root = root;
     }
 
-    /**
-     * Get Order
-     *
-     * @return order
-     */
-    public int getOrder() {
-        return this.order;
-    }
-
-
-    /**
-     * Get height
-     *
-     * @param node , the node
-     * @return the height of the node position
-     */
-    public int getHeight(Node node) {
-
-        int height = 1;
-
-        Node currNode = this.root;
-        // Traverse to the corresponding external node that would 'should'
-        // contain starting key (key1)
-
-        while (currNode.getChildren()[0] != null) {
-            currNode = currNode.getChildren()[binarySearchWithinInternalNode(currNode.getKey(0), currNode.getKeys(), currNode.numKeys)];
-            height++;
-
-        }
-
-        return height;
-
-    }
 
     /**
      * Insert a value and value pair to the B Plus Tree
      *
-     * @param value the key to be inserted
+     * @param key the key to be inserted
      */
-    public void insertElement(double value) {
+    public void insertElement(double key) {
         if (this.root == null) {
             this.root = new Node();
-            this.root.keys[0] = new Key(value, generateString());
+            this.root.keys[0] = new Key(key, generateString());
             this.root.numKeys++;
 
         } else {
-            this.insert(this.root, value);
+            this.insert(this.root, key);
         }
     }
 
@@ -136,19 +94,19 @@ public class BPlusTree {
      * Insert value
      *
      * @param node
-     * @param value
+     * @param key
      */
-    public void insert(Node node, double value) {
+    public void insert(Node node, double key) {
 
         if (node.isLeaf) {
-            this.insertInto(node, value);
+            this.insertInto(node, key);
             this.insertValidate(node);
         } else {
             int findIndex = 0;
-            while (findIndex < node.numKeys && node.keys[findIndex].getKey() < value) {
+            while (findIndex < node.numKeys && node.keys[findIndex].getKey() < key) {
                 findIndex++;
             }
-            this.insert(node.children[findIndex], value);
+            this.insert(node.children[findIndex], key);
         }
     }
 
@@ -157,16 +115,16 @@ public class BPlusTree {
      * Insert value into the node
      *
      * @param node
-     * @param value
+     * @param key
      */
-    public void insertInto(Node node, double value) {
+    public void insertInto(Node node, double key) {
         int index = node.numKeys;
-        while (index > 0 && node.keys[index - 1].getKey() > value) {
+        while (index > 0 && node.keys[index - 1].getKey() > key) {
             node.keys[index] = node.keys[index - 1];
             index--;
         }
 
-        node.keys[index] = new Key(value, generateString());//value;
+        node.keys[index] = new Key(key, generateString());//value;
         node.numKeys++;
     }
 

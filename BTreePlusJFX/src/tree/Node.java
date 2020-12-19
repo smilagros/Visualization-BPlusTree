@@ -1,7 +1,7 @@
 package tree;
 
 /**
- * The Class tree.Node.
+ * The Class Node.
  */
 public class Node {
 
